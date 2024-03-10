@@ -8,6 +8,9 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
+  postgres: ^3.1.1
+  sqflite_common: ^2.5.3
+  sqflite_common_ffi: ^2.1.1+1
   # path: ^1.8.0
 
 dev_dependencies:
