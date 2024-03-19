@@ -1,5 +1,4 @@
 import 'package:loxia/src/datasource/datasource.dart';
-import 'package:loxia/src/entity/entity.dart';
 
 mixin DriverOperations on Driver {
 
@@ -21,6 +20,6 @@ abstract class Driver {
 
   String escape(String value);
 
-  Future<List<E>> query<E extends Entity>(String query, E entity);
+  Future<List<Map<String, dynamic>>> query(String query);
 
 }

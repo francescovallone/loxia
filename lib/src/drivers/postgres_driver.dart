@@ -1,6 +1,5 @@
 import 'package:loxia/src/datasource/options/datasource_options.dart';
 import 'package:loxia/src/drivers/driver.dart';
-import 'package:loxia/src/entity/entity.dart';
 import 'package:postgres/postgres.dart';
 
 class PostgresDriver extends Driver {
@@ -37,20 +36,18 @@ class PostgresDriver extends Driver {
   }
 
   @override
-  Future<List<E>> query<E extends Entity>(String query, E entity) async {
+  Future<List<Map<String, dynamic>>> query(String query) async {
     if(postgres == null){
       throw Exception('Connection not established');
     }
     final result = await postgres!.execute(query);
-    final rows = result.map<E>((row) {
+    return result.map((row) {
       final map = <String, dynamic>{};
       for (var i = 0; i < row.length; i++) {
         map[result.schema.columns[i].columnName!] = row[i];
       }
-      
-      return entity.fromResultSet(map);
+      return map;
     }).toList();
-    return rows;
   }
   
   @override

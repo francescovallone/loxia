@@ -2,58 +2,68 @@
 import 'package:loxia/src/datasource/datasource.dart';
 import 'package:loxia/src/datasource/options/datasource_options.dart';
 import 'package:loxia/src/entity/entity.dart';
+import 'package:loxia/src/entity/entity_definition.dart';
+import 'package:loxia/src/entity/entity_repository.dart';
 import 'package:loxia/src/entity/primary_key.dart';
 
 class User extends Entity {
-  User() : super(
-    primaryKey: PrimaryKeyString(),
-    tableName: 'user'
-  );
 
-  late String id;
-  late String businessUnit;
-  late String company;
-  late String? notificationsToken;
-  
+  final String id;
+  final String email;
+  final String password;
+  final String firstName;
+  final String lastName;
+
+  User({
+    required this.id,
+    required this.email,
+    required this.password,
+    required this.firstName,
+    required this.lastName,
+    super.primaryKey = const PrimaryKeyString()
+  });
+
   @override
-  User fromResultSet(Map<String, dynamic> resultSet) {
-    id = resultSet['id'];
-    businessUnit = resultSet['businessUnit'];
-    company = resultSet['company'];
-    notificationsToken = resultSet['notificationsToken'];
-    return this;
-  }
-  
-  @override
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'businessUnit': businessUnit,
-      'company': company,
-      'notificationsToken': notificationsToken
-    };
+  factory User.fromMap(Map<String, dynamic> values) {
+    return User(
+      id: values['id'],
+      email: values['email'],
+      password: values['password'],
+      firstName: values['firstName'],
+      lastName: values['lastName']
+    );
   }
   
 }
 
 void main() async {
-
+  final ed = EntityDefinition<User>(
+          User,
+          (values) => User.fromMap(values),
+          tableName: 'users'
+        );
   DataSource db = DataSource(
     PostgresDataSourceOptions(
-      database: 'orbyta',
+      database: 'rupert',
       host: 'localhost',
-      password: 'orbyta',
+      password: 'Rupert2@23!',
       port: 5432,
-      username: 'orbyta'
+      username: 'rupert',
+      entities: [
+        ed
+      ]
     )
   );
 
   await db.init();
 
   print("HELLO WORLD!");
-  final result = await db.query('SELECT * FROM "user"', User());
-  print(result.map((e) => e.hashCode));
-
+  final repository = db.getRepository<User>();
+  
+  final users = await repository.query('SELECT * FROM "users"');
+  final another = await (ed.repository as EntityRepository<User>).query('SELECT * FROM "users"');
+  print(users.first.id);
+  print(another.first.id);
   await db.destroy();
 
 }
