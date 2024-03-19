@@ -11,5 +11,11 @@ abstract class Entity {
   }){
     this.tableName = tableName ?? runtimeType.toString().toLowerCase();
   }
+  
+  factory Entity.fromResultSet(Map<String, dynamic> resultSet){
+    throw UnimplementedError();
+  }
+
+  Map<String, dynamic> toMap();
 
 }

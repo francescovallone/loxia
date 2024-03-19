@@ -1,7 +1,7 @@
 import 'package:loxia/src/enums/database_enum.dart';
 import 'package:postgres/postgres.dart';
 
-abstract class DriverOptions{
+abstract class DataSourceOptions {
   final DatabaseType type;
   final String host;
   final int port;
@@ -9,7 +9,7 @@ abstract class DriverOptions{
   final String username;
   final String password;
 
-  const DriverOptions({
+  const DataSourceOptions({
     required this.host,
     required this.port,
     required this.database,
@@ -20,16 +20,16 @@ abstract class DriverOptions{
 
   @override
   String toString() {
-    return 'DriverOptions{type: $type, host: $host, port: $port, database: $database, username: $username}';
+    return 'DataSourceOptions{type: $type, host: $host, port: $port, database: $database, username: $username}';
   }
   
 }
 
-class PostgresDriverOptions extends DriverOptions{
+class PostgresDataSourceOptions extends DataSourceOptions{
 
   final SslMode sslMode;
 
-  const PostgresDriverOptions({
+  const PostgresDataSourceOptions({
     required super.host, 
     required super.port, 
     required super.database, 
@@ -40,7 +40,7 @@ class PostgresDriverOptions extends DriverOptions{
 
   @override
   String toString() {
-    return 'PostgresDriverOptions{host: $host, port: $port, database: $database, username: $username, sslMode: $sslMode}';
+    return 'PostgresDataSourceOptions{host: $host, port: $port, database: $database, username: $username, sslMode: $sslMode}';
   }
 
 }

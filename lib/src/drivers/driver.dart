@@ -1,21 +1,26 @@
-import 'package:loxia/src/entity/primary_key.dart';
+import 'package:loxia/src/datasource/datasource.dart';
+import 'package:loxia/src/entity/entity.dart';
 
-import 'options/driver_options.dart';
-
-mixin DriverOperations {
-
-  Future<List<Map<String, dynamic>>> find(FindQuery query);
+mixin DriverOperations on Driver {
 
   Future<Map<String, dynamic>> findById(dynamic id);
 
-  Future<Map<String, dynamic>> findOne(FindOneQuery query);
-
 }
 
-abstract class Driver<T extends DriverOptions> {
+abstract class Driver {
 
-  Future<void> init(T options);
+  Driver(this.connection);
+
+  final DataSource connection;
+
+  bool get isConnected;
+
+  Future<void> connect();
 
   Future<void> dispose();
+
+  String escape(String value);
+
+  Future<List<E>> query<E extends Entity>(String query, E entity);
 
 }
