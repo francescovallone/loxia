@@ -1,40 +1,13 @@
 
 import 'package:loxia/loxia.dart';
 
-class User {
-
-  final String id;
-  final String email;
-  final String password;
-  final String firstName;
-  final String lastName;
-
-  User({
-    required this.id,
-    required this.email,
-    required this.password,
-    required this.firstName,
-    required this.lastName,
-  });
-
-  @override
-  factory User.fromMap(Map<String, dynamic> values) {
-    return User(
-      id: values['id'],
-      email: values['email'],
-      password: values['password'],
-      firstName: values['firstName'],
-      lastName: values['lastName']
-    );
-  }
-  
-}
+import 'user_entity.dart';
 
 void main() async {
   final ed = EntityDefinition<User>(
           User,
           (values) => User.fromMap(values),
-          tableName: 'users'
+          tableName: User.entity.table,
         );
   DataSource db = DataSource(
     PostgresDataSourceOptions(
@@ -48,10 +21,7 @@ void main() async {
       ]
     )
   );
-  
-  final er = EntityRegistry();
-  er.getProperties(ed.entity);
-
+  print(User.entity.table);
   // await db.init();
 
   // print("HELLO WORLD!");

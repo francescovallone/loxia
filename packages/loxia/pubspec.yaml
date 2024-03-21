@@ -11,10 +11,11 @@ dependencies:
   postgres: ^3.1.1
   sqflite_common: ^2.5.3
   sqflite_common_ffi: ^2.1.1+1
-  loxia_annotations:
-    path: ../loxia_annotations
+  loxia_annotations: any
   # path: ^1.8.0
 
 dev_dependencies:
+  loxia_generators: any
+  build_runner: ^2.3.3
   lints: ^3.0.0
   test: ^1.24.0
