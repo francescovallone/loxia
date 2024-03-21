@@ -11,11 +11,11 @@ void main() async {
         );
   DataSource db = DataSource(
     PostgresDataSourceOptions(
-      database: 'rupert',
+      database: 'test_db',
       host: 'localhost',
-      password: 'Rupert2@23!',
+      password: 'password',
       port: 5432,
-      username: 'rupert',
+      username: 'user',
       entities: [
         ed
       ]
