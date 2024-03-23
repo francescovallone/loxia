@@ -13,7 +13,7 @@ import 'package:meta/meta_meta.dart';
 /// ```
 @sealed
 @Target({TargetKind.classType})
-class Entity{
+class EntityMeta{
 
   /// If the table name is not provided, the class name will be used as the table name
   /// 
@@ -31,7 +31,7 @@ class Entity{
   /// ```
   final String? table;
   
-  const Entity({
+  const EntityMeta({
     this.table,
   });
   

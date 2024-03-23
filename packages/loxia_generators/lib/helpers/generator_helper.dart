@@ -7,9 +7,9 @@ import 'types/class_config.dart';
 class GeneratorHelper {
   final _addedMembers = <String>{};
   ClassElement element;
-  ClassConfig annotation;
+  ClassConfig annotation = ClassConfig();
 
-  GeneratorHelper(this.element, this.annotation);
+  GeneratorHelper(this.element);
 
   ColumnConfig columnFor(FieldElement field) {
     return columnForField(field, annotation);
@@ -27,6 +27,7 @@ class GeneratorHelper {
       <String, FieldElement>{},
       (map, field) {
         final column = columnFor(field);
+        print('Column: $column, ${field.computeConstantValue()}');
         if (!field.isPublic) {
           unavailableReasons[field.name] = 'It is assigned to a private field.';
         } else if (field.getter == null) {
@@ -49,7 +50,7 @@ class GeneratorHelper {
         <String>{},
         (Set<String> set, fe) {
           final column = columnFor(fe);
-          final name = column.name ?? column.runtimeType.toString();
+          final name = column.name ?? fe.name;
           if (!set.add(name)) {
             throw Exception(
               'More than one field has the name "$name". '

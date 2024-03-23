@@ -1,4 +1,5 @@
-import '../../entity/entity_definition.dart';
+import 'package:loxia/src/entity/entity.dart';
+
 import '../../enums/database_enum.dart';
 import 'package:postgres/postgres.dart';
 
@@ -9,7 +10,7 @@ abstract class DataSourceOptions {
   final String database;
   final String username;
   final String password;
-  final List<EntityDefinition> entities;
+  final List<GeneratedEntity> entities;
 
   const DataSourceOptions({
     required this.host,

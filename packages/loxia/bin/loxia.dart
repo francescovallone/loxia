@@ -4,26 +4,24 @@ import 'package:loxia/loxia.dart';
 import 'user_entity.dart';
 
 void main() async {
-  final ed = EntityDefinition<User>(
-          User,
-          (values) => User.fromMap(values),
-          tableName: User.entity.table,
-        );
   DataSource db = DataSource(
     PostgresDataSourceOptions(
-      database: 'test_db',
+      database: 'postgres',
       host: 'localhost',
-      password: 'password',
+      password: 'test_loxia',
       port: 5432,
-      username: 'user',
+      username: 'test_loxia',
       entities: [
-        ed
+        User.entity
       ]
     )
   );
-  print(User.entity.table);
-  // await db.init();
+  await db.init();
+  final repository = db.getRepository<User>();
 
+  final users = await repository.query('SELECT * FROM "user"');
+
+  print(users);
   // print("HELLO WORLD!");
   // final repository = db.getRepository<User>();
   

@@ -1,7 +1,8 @@
+import 'package:loxia/src/entity/entity.dart';
+
 import 'options/datasource_options.dart';
 import '../drivers/driver.dart';
 import '../drivers/driver_factory.dart';
-import '../entity/entity_definition.dart';
 import '../entity/entity_repository.dart';
 
 class DataSource<T extends DataSourceOptions>{
@@ -13,9 +14,9 @@ class DataSource<T extends DataSourceOptions>{
 
   bool get isConnected => _driver.isConnected;
 
-  Iterable<Type> get entities => options.entities.map((e) => e.entity);
+  Iterable<GeneratedEntity> get entities => options.entities.map((e) => e);
 
-  List<EntityRepository> _repositories = [];
+  final List<EntityRepository> _repositories = [];
 
   DataSource(this.options){
     _driver = DriverFactory().create<T>(this);
@@ -26,16 +27,18 @@ class DataSource<T extends DataSourceOptions>{
       throw Exception('Connection already established');
     }
     await _driver.connect();
+    for(var entity in options.entities){
+      await _driver.createTable(entity, ifNotExists: true);
+    }
     _repositories.addAll(options.entities.map((e) => _generateRepository(e)));
   }
 
-  EntityRepository<E> getRepository<E>() {
-    print(_repositories);
-    final repository = _repositories.where((e) => e.entityType == E);
+  EntityRepository getRepository<E>() {
+    final repository = _repositories.where((e) => e.entity.entityCls == E);
     if(repository.isEmpty) {
       throw Exception('Repository for $E not found');
     }
-    return repository.first as EntityRepository<E>;
+    return repository.first;
   }
 
   Future<void> destroy() async {
@@ -47,10 +50,10 @@ class DataSource<T extends DataSourceOptions>{
 
   String escape(String value) => _driver.escape(value);
 
-  _generateRepository(EntityDefinition entityDefinition) {
-    entityDefinition.repository!.init(driver, entityDefinition);
-    entityDefinition.repository = null;
-    return entityDefinition.repository;
+  _generateRepository(GeneratedEntity entity) {
+    EntityRepository repository = EntityRepository(entity, entity.entityCls);
+    repository.init(_driver);
+    return repository;
   }
 
 }

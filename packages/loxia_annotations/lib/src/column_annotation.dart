@@ -28,3 +28,17 @@ class Column{
   });
 
 }
+
+
+class PrimaryKey extends Column{
+  
+  final bool autoIncrement;
+  final bool uuid;
+  
+  const PrimaryKey({
+    super.name,
+    this.autoIncrement = false,
+    this.uuid = false,
+  });
+
+} 

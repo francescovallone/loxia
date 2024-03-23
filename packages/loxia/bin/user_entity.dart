@@ -1,13 +1,17 @@
+import 'package:loxia/loxia.dart';
+import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia_annotations/loxia_annotations.dart';
 
 part 'user_entity.g.dart';
 
-@Entity()
-class User {
+@EntityMeta()
+class User extends Entity{
 
   static UserEntity get entity => UserEntity();
 
-  @Column()
+  @PrimaryKey(
+    uuid: true
+  )
   final String id;
   @Column()
   final String email;

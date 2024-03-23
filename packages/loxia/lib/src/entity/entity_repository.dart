@@ -1,18 +1,17 @@
+import 'package:loxia/src/entity/entity.dart';
+
 import '../drivers/driver.dart';
-import 'entity_definition.dart';
 
-final class EntityRepository<E>{
+final class EntityRepository{
 
-  late final EntityDefinition<E> _entityDefinition;
-  late final Type entityType;
+  final GeneratedEntity entity;
+  final Type entityCls;
   late final Driver _driver;
 
-  EntityRepository();
+  EntityRepository(this.entity, this.entityCls);
 
-  void init(Driver driver, EntityDefinition<E> entityDefinition){
+  void init(Driver driver){
     _driver = driver;
-    _entityDefinition = entityDefinition;
-    entityType = entityDefinition.entity;
   }
 
   // Future<E> findById(dynamic id) async {
@@ -21,9 +20,9 @@ final class EntityRepository<E>{
   //   return 
   // }
 
-  Future<List<E>> query(String query) async {
+  Future<List<Entity>> query(String query) async {
     final result = await _driver.query(query);
-    return result.map((e) => _entityDefinition.resultMapper(e)).toList();
+    return result.map(entity.from).toList();
   }
 
 

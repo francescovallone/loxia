@@ -90,7 +90,8 @@ ColumnConfig _from(FieldElement element, ClassConfig classAnnotation) {
   // If the result is `null`, check the getter – it is a property.
   // TODO: setters: github.com/google/json_serializable.dart/issues/24
   final obj = columnKeyAnnotation(element);
-
+  print('${obj.isNull} - ${obj.instanceOf(_columnChecker)}');
+  
   if (obj.isNull) {
     return _populateColumn(
       classAnnotation,
@@ -194,7 +195,8 @@ ColumnConfig _from(FieldElement element, ClassConfig classAnnotation) {
     }
     return jsonLiteralAsDart(defaultValueLiteral);
   }
-
+  final defaultValue = createAnnotationValue('name');
+  print(defaultValue);
   return _populateColumn(
     classAnnotation,
     element,
@@ -237,10 +239,10 @@ List<FieldElement> createSortedFieldSet(ClassElement element) {
 
   final inheritedFields = <String, FieldElement>{};
   final manager = InheritanceManager3();
-
+  print("VALUES: ${manager.getInheritedConcreteMap2(element).values}");
   for (final v in manager.getInheritedConcreteMap2(element).values) {
     assert(v is! FieldElement);
-
+    print('Field: $v');
     if (v is PropertyAccessorElement && v.isGetter) {
       assert(v.variable is FieldElement);
       final variable = v.variable as FieldElement;
@@ -252,11 +254,10 @@ List<FieldElement> createSortedFieldSet(ClassElement element) {
   // Get the list of all fields for `element`
   final allFields =
       elementInstanceFields.keys.toSet().union(inheritedFields.keys.toSet());
-
+  print(allFields);
   final fields = allFields
-      .map((e) => elementInstanceFields[e]!)
-      .toList()
-    ..sort();
+      .map((e) => elementInstanceFields[e] ?? inheritedFields[e]!)
+      .toList();
 
   return fields.toList(growable: false);
 }

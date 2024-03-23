@@ -1,12 +1,29 @@
+import 'package:loxia/src/entity/entity.dart';
+
 import '../datasource/datasource.dart';
 
-mixin DriverOperations on Driver {
+mixin DriverOperations {
 
   Future<Map<String, dynamic>> findById(dynamic id);
 
 }
 
-abstract class Driver {
+mixin DriverTableOperations {
+
+  Future<void> createTable(
+    GeneratedEntity entity,
+    {
+      bool ifNotExists = false,
+    }
+  );
+
+  Future<void> dropTable(GeneratedEntity entity);
+
+  Future<bool> hasTable(GeneratedEntity entity);
+
+}
+
+abstract class Driver with DriverOperations, DriverTableOperations{
 
   Driver(this.connection);
 
