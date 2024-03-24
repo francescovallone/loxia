@@ -1,10 +1,11 @@
 import 'package:loxia/src/entity/entity.dart';
+import 'package:loxia/src/queries/find/find_options.dart';
 
 import '../datasource/datasource.dart';
 
 mixin DriverOperations {
 
-  Future<Map<String, dynamic>> findById(dynamic id);
+  Future<List<Map<String, dynamic>>> find(FindOptions options, GeneratedEntity entity);
 
 }
 

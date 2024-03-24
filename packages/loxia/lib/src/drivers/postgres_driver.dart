@@ -1,5 +1,7 @@
 import 'package:loxia/loxia.dart';
 import 'package:loxia/src/entity/entity.dart';
+import 'package:loxia/src/enums/order_by_enum.dart';
+import 'package:loxia/src/queries/find/find_options.dart';
 
 import 'driver.dart';
 import 'package:postgres/postgres.dart';
@@ -66,12 +68,14 @@ class PostgresDriver extends Driver{
       }
     }
     final columns = entity.schema.fields.map((e) => buildCreateColumn(e)).join(', ');
-    final buffer = StringBuffer('CREATE TABLE ${escapeString(entity.table)} ($columns)'); 
-    // final primaryColumn = entity.schema.fields.where((e) => e.primaryKey).firstOrNull;
-    // if(primaryColumn != null){
-    //   print(primaryColumn.name);
-    //   buffer.write(' CONSTRAINT ${primaryColumn.name} PRIMARY KEY (${primaryColumn.name})');
-    // }
+    final buffer = StringBuffer('CREATE TABLE ${escapeString(entity.table)} ($columns,'); 
+    final primaryColumn = entity.schema.fields.where((e) => e.primaryKey).firstOrNull;
+    if(primaryColumn != null){
+      print(primaryColumn.name);
+      buffer.write(' CONSTRAINT ${escapeString('${primaryColumn.name}_pk')} PRIMARY KEY (${escapeString(primaryColumn.name)})');
+    }
+    buffer.write(');');
+    print(buffer.toString());
     await postgres?.execute(buffer.toString());
   }
 
@@ -89,6 +93,9 @@ class PostgresDriver extends Driver{
     
     if(field.type == 'String'){
       buffer.write(' TEXT');
+    }
+    if(field.type == 'bool'){
+      buffer.write(' BOOLEAN');
     }
     return buffer.toString();
   }
@@ -144,7 +151,6 @@ class PostgresDriver extends Driver{
         // return c
   
   @override
-  // TODO: implement isConnected
   bool get isConnected => postgres?.isOpen ?? false;
   
   @override
@@ -154,9 +160,45 @@ class PostgresDriver extends Driver{
   }
   
   @override
-  Future<Map<String, dynamic>> findById(id) {
-    // TODO: implement findById
-    throw UnimplementedError();
+  Future<List<Map<String, dynamic>>> find(FindOptions options, GeneratedEntity entity) async {
+    final stringQuery = StringBuffer('SELECT');
+    if(options.select.isEmpty){
+      stringQuery.write(' *');
+    } else {
+      final columns = options.select.map((column) => escapeString(column)).toList();
+      stringQuery.write(' ${columns.join(', ')}');
+    }
+    stringQuery.write(' FROM ${escapeString(entity.table)}');
+    stringQuery.write(_buildWhereClause(options.where));
+    stringQuery.write(_buildOrderByClause(options.orderBy));
+    if(options.limit != null){
+      stringQuery.write(' LIMIT ${options.limit}');
+    }
+    if(options.skip != null){
+      stringQuery.write(' OFFSET ${options.skip}');
+    }
+    print(stringQuery.toString());
+    return await query(stringQuery.toString());
+  }
+
+  String _buildWhereClause(List<Map<String, dynamic>> whereClauses) {
+    final buffer = StringBuffer();
+    if(whereClauses.isNotEmpty){
+      buffer.write(' WHERE');
+      final where = whereClauses.map((e) => e.entries.map((e) => "(${escapeString(e.key)} = '${e.value}')").join(' AND ')).join(' OR ');
+      buffer.write(' $where');
+    }
+    return buffer.toString();
+  }
+
+  String _buildOrderByClause(Map<String, OrderBy> orderByClause) {
+    final buffer = StringBuffer();
+    if(orderByClause.isNotEmpty){
+      buffer.write(' ORDER BY');
+      final orderBy = orderByClause.entries.map((e) => '${escapeString(e.key)} ${e.value == OrderBy.asc ? 'ASC' : 'DESC'}').join(', ');
+      buffer.write(' $orderBy');
+    }
+    return buffer.toString();
   }
 
 }

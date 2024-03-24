@@ -33,12 +33,12 @@ class DataSource<T extends DataSourceOptions>{
     _repositories.addAll(options.entities.map((e) => _generateRepository(e)));
   }
 
-  EntityRepository getRepository<E>() {
+  EntityRepository<E> getRepository<E>() {
     final repository = _repositories.where((e) => e.entity.entityCls == E);
     if(repository.isEmpty) {
       throw Exception('Repository for $E not found');
     }
-    return repository.first;
+    return EntityRepository<E>.from(repository.first);
   }
 
   Future<void> destroy() async {

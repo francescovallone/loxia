@@ -1,5 +1,0 @@
-class ClassConfig {
-
-  const ClassConfig();
-
-}

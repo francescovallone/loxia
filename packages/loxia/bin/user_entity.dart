@@ -30,15 +30,9 @@ class User extends Entity{
     required this.lastName,
   });
 
+
   @override
-  factory User.fromMap(Map<String, dynamic> values) {
-    return User(
-      id: values['id'],
-      email: values['email'],
-      password: values['password'],
-      firstName: values['firstName'],
-      lastName: values['lastName']
-    );
+  String toString() {
+    return 'User{id: $id, email: $email, password: $password, firstName: $firstName, lastName: $lastName}';
   }
-  
 }

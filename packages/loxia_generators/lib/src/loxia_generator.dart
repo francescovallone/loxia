@@ -86,7 +86,7 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         @override
         ${element.name} from(Map<String, dynamic> map) {
           return ${element.name}(
-            ${fieldNames.map((e) => '${e.field}: map[\'${e.name}\']').join(',\n')}
+            ${fieldNames.map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ""').join(',\n')}
           ); 
         }
       '''

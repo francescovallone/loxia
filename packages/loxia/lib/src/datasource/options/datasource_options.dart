@@ -36,9 +36,9 @@ class PostgresDataSourceOptions extends DataSourceOptions{
   const PostgresDataSourceOptions({
     required super.host, 
     required super.port, 
-    required super.database, 
     required super.username, 
     required super.password,
+    super.database = 'postgres', 
     super.entities = const [],
     this.sslMode = SslMode.disable
   });

@@ -1,8 +1,9 @@
 import 'package:loxia/src/entity/entity.dart';
+import 'package:loxia/src/queries/find/find_options.dart';
 
 import '../drivers/driver.dart';
 
-final class EntityRepository{
+final class EntityRepository<T>{
 
   final GeneratedEntity entity;
   final Type entityCls;
@@ -14,15 +15,27 @@ final class EntityRepository{
     _driver = driver;
   }
 
+  factory EntityRepository.from(EntityRepository repository){
+    final repo = EntityRepository<T>(repository.entity, repository.entityCls);
+    repo.init(repository._driver);
+    return repo;
+  }
+
   // Future<E> findById(dynamic id) async {
   //   // final result = await _driver.findById(id);
   //   // return _entityDefinition.resultMapper(result);
   //   return 
   // }
 
-  Future<List<Entity>> query(String query) async {
+  Future<List<T>> query(String query) async {
     final result = await _driver.query(query);
-    return result.map(entity.from).toList();
+    return List<T>.from(result.map(entity.from));
+  }
+
+  Future<List<T>> find(FindOptions options) async {
+    final result = await _driver.find(options, entity);
+    print(result);
+    return List<T>.from(result.map(entity.from));
   }
 
 
