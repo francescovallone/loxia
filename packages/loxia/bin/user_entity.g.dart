@@ -47,6 +47,14 @@ class UserEntity extends GeneratedEntity {
       nullable: false,
       unique: false,
     ),
+    FieldSchema(
+      name: 'todos',
+      type: 'String',
+      nullable: false,
+      unique: false,
+      relationType: RelationType.oneToMany,
+      relationEntity: Todo.entity,
+    ),
   ]);
 
   @override
@@ -56,7 +64,8 @@ class UserEntity extends GeneratedEntity {
         email: map.containsKey("email") ? map['email'] : '',
         password: map.containsKey("password") ? map['password'] : '',
         firstName: map.containsKey("firstName") ? map['firstName'] : '',
-        lastName: map.containsKey("lastName") ? map['lastName'] : '');
+        lastName: map.containsKey("lastName") ? map['lastName'] : '',
+        todos: map['todos'].map(Todo.entity.from));
   }
 
   @override
@@ -66,7 +75,8 @@ class UserEntity extends GeneratedEntity {
       'email': entity.email,
       'password': entity.password,
       'firstName': entity.firstName,
-      'lastName': entity.lastName
+      'lastName': entity.lastName,
+      'todos': entity.todos
     };
   }
 }

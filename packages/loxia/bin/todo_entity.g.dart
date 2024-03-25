@@ -44,6 +44,14 @@ class TodoEntity extends GeneratedEntity {
       unique: false,
       defaultValue: null,
     ),
+    FieldSchema(
+      name: 'user',
+      type: 'String',
+      nullable: false,
+      unique: false,
+      relationType: RelationType.manyToOne,
+      relationEntity: User.entity,
+    ),
   ]);
 
   @override
@@ -52,8 +60,8 @@ class TodoEntity extends GeneratedEntity {
         id: map.containsKey("id") ? map['id'] : '',
         name: map.containsKey("name") ? map['name'] : 'todo',
         isDone: map.containsKey("isDone") ? map['isDone'] : false,
-        description:
-            map.containsKey("description") ? map['description'] : null);
+        description: map.containsKey("description") ? map['description'] : null,
+        user: User.entity.from(map['user']));
   }
 
   @override
@@ -62,7 +70,8 @@ class TodoEntity extends GeneratedEntity {
       'id': entity.id,
       'name': entity.name,
       'isDone': entity.isDone,
-      'description': entity.description
+      'description': entity.description,
+      'user': entity.user
     };
   }
 }

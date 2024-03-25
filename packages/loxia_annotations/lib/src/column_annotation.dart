@@ -52,15 +52,15 @@ class PrimaryKey extends Column{
 
 }
 
+@sealed
+@Target({TargetKind.field})
 abstract class Relation{
 
-  final dynamic Function()? on;
-  final dynamic Function(dynamic)? to;
+  final Type on;
   final bool hasForeignKey;
 
   const Relation({
-    this.on,
-    this.to,
+    required this.on,
     this.hasForeignKey = false,
   });
 
@@ -69,8 +69,7 @@ abstract class Relation{
 class OneToOne extends Relation{
 
   const OneToOne({
-    super.on,
-    super.to,
+    required super.on,
     super.hasForeignKey = false,
   });
 
@@ -79,9 +78,7 @@ class OneToOne extends Relation{
 class OneToMany extends Relation{
 
   const OneToMany({
-    super.on,
-    super.to,
-    super.hasForeignKey = false,
+    required super.on,
   });
 
 }
@@ -89,9 +86,7 @@ class OneToMany extends Relation{
 class ManyToOne extends Relation{
 
   const ManyToOne({
-    super.on,
-    super.to,
-    super.hasForeignKey = false,
+    required super.on,
   });
 
 }
@@ -99,8 +94,7 @@ class ManyToOne extends Relation{
 class ManyToMany extends Relation{
 
   const ManyToMany({
-    super.on,
-    super.to,
+    required super.on,
     super.hasForeignKey = false,
   });
 

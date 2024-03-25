@@ -1,3 +1,7 @@
+import 'package:loxia/src/entity/entity.dart';
+
+import '../enums/relation_type_enum.dart';
+
 class EntitySchema {
 
   final List<FieldSchema> _fields;
@@ -29,6 +33,9 @@ class FieldSchema {
   final String? explicitType;
   final dynamic defaultValue;
   final bool unique;
+  final bool hasForeignKey;
+  final RelationType relationType;
+  final GeneratedEntity? relationEntity;
 
   const FieldSchema({
     required this.name,
@@ -40,6 +47,9 @@ class FieldSchema {
     this.explicitType,
     this.unique = false,
     this.defaultValue,
+    this.hasForeignKey = false,
+    this.relationType = RelationType.none,
+    this.relationEntity,
   });
 
   @override

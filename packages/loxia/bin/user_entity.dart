@@ -1,6 +1,9 @@
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/entity/entity_schema.dart';
+import 'package:loxia/src/enums/relation_type_enum.dart';
 import 'package:loxia_annotations/loxia_annotations.dart';
+
+import 'todo_entity.dart';
 
 part 'user_entity.g.dart';
 
@@ -22,12 +25,18 @@ class User extends Entity{
   @Column()
   final String lastName;
 
+  @OneToMany(
+    on: Todo,
+  )
+  final List<Todo> todos;
+
   User({
     required this.id,
     required this.email,
     required this.password,
     required this.firstName,
     required this.lastName,
+    required this.todos,
   });
 
 
