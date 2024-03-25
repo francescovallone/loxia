@@ -1,30 +1,20 @@
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/queries/find/find_options.dart';
+import 'package:loxia/src/query_runner/query_runner.dart';
 
 import '../datasource/datasource.dart';
 
 mixin DriverOperations {
 
-  Future<List<Map<String, dynamic>>> find(FindOptions options, GeneratedEntity entity);
+  Future<List<Map<String, dynamic>>> find(FindOptions? options, GeneratedEntity entity);
 
 }
 
 mixin DriverTableOperations {
 
-  Future<void> createTable(
-    GeneratedEntity entity,
-    {
-      bool ifNotExists = false,
-    }
-  );
-
-  Future<void> dropTable(GeneratedEntity entity);
-
-  Future<bool> hasTable(GeneratedEntity entity);
-
 }
 
-abstract class Driver with DriverOperations, DriverTableOperations{
+abstract class Driver{
 
   Driver(this.connection);
 
@@ -38,6 +28,6 @@ abstract class Driver with DriverOperations, DriverTableOperations{
 
   String escape(String value);
 
-  Future<List<Map<String, dynamic>>> query(String query);
+  QueryRunner get queryRunner;
 
 }

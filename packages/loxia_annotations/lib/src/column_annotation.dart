@@ -22,9 +22,15 @@ import 'package:meta/meta_meta.dart';
 class Column{
   
   final String? name;
+  final String? explicitType;
+  final dynamic defaultValue;
+  final bool unique;
   
   const Column({
     this.name,
+    this.explicitType,
+    this.defaultValue,
+    this.unique = false,
   });
 
 }
@@ -34,6 +40,9 @@ class PrimaryKey extends Column{
   
   final bool autoIncrement;
   final bool uuid;
+
+  @override
+  bool get unique => true;
   
   const PrimaryKey({
     super.name,
@@ -41,4 +50,4 @@ class PrimaryKey extends Column{
     this.uuid = false,
   });
 
-} 
+}

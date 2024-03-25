@@ -1,5 +1,5 @@
-import 'package:loxia/loxia.dart';
 import 'package:loxia/src/entity/entity.dart';
+import 'package:loxia/src/entity/entity_schema.dart';
 import 'package:loxia_annotations/loxia_annotations.dart';
 
 part 'user_entity.g.dart';

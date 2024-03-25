@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:loxia_annotations/loxia_annotations.dart';
+import 'package:loxia_generators/src/helpers/values_helper.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_helper/source_helper.dart';
 const _columnChecker = TypeChecker.fromRuntime(Column);
@@ -13,7 +14,7 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
 
   @override
   generateForAnnotatedElement(Element element, ConstantReader annotation, BuildStep buildStep) {
-        final buffer = StringBuffer();
+    final buffer = StringBuffer();
     if(element is! ClassElement) {
       throw Exception('The @Entity annotation can only be used on classes.');
     }
@@ -37,15 +38,18 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
     );
     // GeneratorHelper helper = GeneratorHelper(element as ClassElement);
 
-    final List<({String name, String field})> fieldNames = [];
+    final List<({String name, String field, dynamic defaultValue, bool isNullable})> fieldNames = [];
     int primaryKeyCount = 0;
     for (var f in (element).fields) {
       if (_columnChecker.hasAnnotationOf(f)) {
         final column = _columnChecker.firstAnnotationOf(f);
         final name = column?.getField('name')?.toStringValue() ?? f.name;
-        fieldNames.add((name: name, field: f.name));
+        final defaultValue = getDefaultValue(
+          column?.getField('defaultValue'),
+        );
         final type = f.type.getDisplayString(withNullability: false);
         final isNullable = f.type.isNullableType;
+        fieldNames.add((name: name, field: f.name, defaultValue: defaultValue, isNullable: isNullable));
         if(column?.type?.getDisplayString(withNullability: false) == 'PrimaryKey'){
           if(primaryKeyCount > 0){
             throw Exception('Only one primary key field is allowed.');
@@ -67,11 +71,14 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
           primaryKeyCount++;
           continue;
         }
+        final isUnique = column?.getField('unique')?.toBoolValue() ?? false;
         buffer.writeln(
           '''FieldSchema(
             name: '$name',
             type: '$type',
             nullable: $isNullable,
+            unique: $isUnique,
+            ${defaultValue == null && !isNullable ? '' : 'defaultValue: $defaultValue,'}
           ),
           '''
         );
@@ -86,7 +93,9 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         @override
         ${element.name} from(Map<String, dynamic> map) {
           return ${element.name}(
-            ${fieldNames.map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ""').join(',\n')}
+            ${fieldNames.map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ${
+              !e.isNullable ? '${e.defaultValue ?? "''"}' : e.defaultValue 
+            }').join(',\n')}
           ); 
         }
       '''

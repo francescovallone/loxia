@@ -1,7 +1,7 @@
 import 'package:loxia/src/entity/entity.dart';
+import 'package:loxia/src/migrations/migration.dart';
 
 import '../../enums/database_enum.dart';
-import 'package:postgres/postgres.dart';
 
 abstract class DataSourceOptions {
   final DatabaseType type;
@@ -11,6 +11,7 @@ abstract class DataSourceOptions {
   final String username;
   final String password;
   final List<GeneratedEntity> entities;
+  final List<Migration> migrations;
 
   const DataSourceOptions({
     required this.host,
@@ -20,6 +21,7 @@ abstract class DataSourceOptions {
     required this.password,
     this.entities = const [],
     this.type = DatabaseType.postgres,
+    this.migrations = const []
   });
 
   @override
@@ -27,25 +29,4 @@ abstract class DataSourceOptions {
     return 'DataSourceOptions{type: $type, host: $host, port: $port, database: $database, username: $username}';
   }
   
-}
-
-class PostgresDataSourceOptions extends DataSourceOptions{
-
-  final SslMode sslMode;
-
-  const PostgresDataSourceOptions({
-    required super.host, 
-    required super.port, 
-    required super.username, 
-    required super.password,
-    super.database = 'postgres', 
-    super.entities = const [],
-    this.sslMode = SslMode.disable
-  });
-
-  @override
-  String toString() {
-    return 'PostgresDataSourceOptions{host: $host, port: $port, database: $database, username: $username, sslMode: $sslMode}';
-  }
-
 }

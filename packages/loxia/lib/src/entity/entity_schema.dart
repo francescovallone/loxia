@@ -26,6 +26,9 @@ class FieldSchema {
   final bool autoIncrement;
   final bool uuid;
   final bool nullable;
+  final String? explicitType;
+  final dynamic defaultValue;
+  final bool unique;
 
   const FieldSchema({
     required this.name,
@@ -34,6 +37,9 @@ class FieldSchema {
     this.autoIncrement = false,
     this.uuid = false,
     this.nullable = false,
+    this.explicitType,
+    this.unique = false,
+    this.defaultValue,
   });
 
   @override

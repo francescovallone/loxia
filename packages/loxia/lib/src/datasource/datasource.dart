@@ -27,8 +27,12 @@ class DataSource<T extends DataSourceOptions>{
       throw Exception('Connection already established');
     }
     await _driver.connect();
+    await _driver.queryRunner.createExtension(
+      'uuid-ossp',
+      ifNotExists: true,
+    );
     for(var entity in options.entities){
-      await _driver.createTable(entity, ifNotExists: true);
+      await _driver.queryRunner.createTable(entity, ifNotExists: true);
     }
     _repositories.addAll(options.entities.map((e) => _generateRepository(e)));
   }
@@ -52,7 +56,7 @@ class DataSource<T extends DataSourceOptions>{
 
   _generateRepository(GeneratedEntity entity) {
     EntityRepository repository = EntityRepository(entity, entity.entityCls);
-    repository.init(_driver);
+    repository.init(_driver.queryRunner);
     return repository;
   }
 

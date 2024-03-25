@@ -3,7 +3,7 @@ import '../datasource/options/datasource_options.dart';
 import '../enums/database_enum.dart';
 
 import 'driver.dart';
-import 'postgres_driver.dart';
+import 'postgres/postgres_driver.dart';
 
 class DriverFactory {
 

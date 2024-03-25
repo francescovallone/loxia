@@ -1,8 +1,10 @@
 
 import 'package:loxia/loxia.dart';
+import 'package:loxia/src/drivers/postgres/postgres_datasource_options.dart';
 import 'package:loxia/src/enums/order_by_enum.dart';
 import 'package:loxia/src/queries/find/find_options.dart';
 
+import 'migration_test.dart';
 import 'todo_entity.dart';
 import 'user_entity.dart';
 
@@ -17,6 +19,9 @@ void main() async {
       entities: [
         User.entity,
         Todo.entity
+      ],
+      migrations: [
+        MigrationTest()
       ]
     )
   );
@@ -24,29 +29,23 @@ void main() async {
   final repository = db.getRepository<User>();
 
   final users = await repository.query('SELECT * FROM "user"');
-  print(users.first.firstName);
+  print(users.firstOrNull?.firstName);
   final userFind = await repository.find(
     FindOptions(
-      select: [
-        'firstName',
-        'lastName'
-      ],
+      select: [],
       where: [
         {
-          'id': '2'
+          'id': '0a23cfa4-62d6-43a1-9150-2bd8e7f309fa'
         },
-        {
-          'id': '1'
-        }
       ],
       orderBy: {
         'id': OrderBy.asc
       }
     )
   );
-  print(userFind.first.toString());
+  print(userFind.firstOrNull?.toString());
   final todo = db.getRepository<Todo>();
-  final todos = await todo.query('SELECT * FROM "todo"');
+  final todos = await todo.find();
   print(todos.firstOrNull);
   // print("HELLO WORLD!");
   // final repository = db.getRepository<User>();

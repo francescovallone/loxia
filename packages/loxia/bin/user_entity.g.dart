@@ -27,32 +27,36 @@ class UserEntity extends GeneratedEntity {
       name: 'email',
       type: 'String',
       nullable: false,
+      unique: false,
     ),
     FieldSchema(
       name: 'password',
       type: 'String',
       nullable: false,
+      unique: false,
     ),
     FieldSchema(
       name: 'firstName',
       type: 'String',
       nullable: false,
+      unique: false,
     ),
     FieldSchema(
       name: 'lastName',
       type: 'String',
       nullable: false,
+      unique: false,
     ),
   ]);
 
   @override
   User from(Map<String, dynamic> map) {
     return User(
-        id: map.containsKey("id") ? map['id'] : "",
-        email: map.containsKey("email") ? map['email'] : "",
-        password: map.containsKey("password") ? map['password'] : "",
-        firstName: map.containsKey("firstName") ? map['firstName'] : "",
-        lastName: map.containsKey("lastName") ? map['lastName'] : "");
+        id: map.containsKey("id") ? map['id'] : '',
+        email: map.containsKey("email") ? map['email'] : '',
+        password: map.containsKey("password") ? map['password'] : '',
+        firstName: map.containsKey("firstName") ? map['firstName'] : '',
+        lastName: map.containsKey("lastName") ? map['lastName'] : '');
   }
 
   @override
