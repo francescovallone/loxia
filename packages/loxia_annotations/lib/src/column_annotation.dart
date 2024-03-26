@@ -57,20 +57,23 @@ class PrimaryKey extends Column{
 abstract class Relation{
 
   final Type on;
-  final bool hasForeignKey;
+  final String referenceColumn;
 
   const Relation({
     required this.on,
-    this.hasForeignKey = false,
+    this.referenceColumn = 'id',
   });
 
 }
 
 class OneToOne extends Relation{
 
+  final bool joinColumn;
+
   const OneToOne({
     required super.on,
-    super.hasForeignKey = false,
+    super.referenceColumn,
+    this.joinColumn = false,
   });
 
 }
@@ -79,6 +82,7 @@ class OneToMany extends Relation{
 
   const OneToMany({
     required super.on,
+    super.referenceColumn,
   });
 
 }
@@ -87,15 +91,19 @@ class ManyToOne extends Relation{
 
   const ManyToOne({
     required super.on,
+    super.referenceColumn,
   });
 
 }
 
 class ManyToMany extends Relation{
 
+  final bool joinTable;
+
   const ManyToMany({
     required super.on,
-    super.hasForeignKey = false,
+    super.referenceColumn,
+    this.joinTable = false,
   });
 
 }

@@ -8,10 +8,16 @@ part of 'todo_entity.dart';
 
 class TodoEntity extends GeneratedEntity {
   @override
-  final String table = 'todo';
+  final Table table = Table('todo');
 
   @override
   final Type entityCls = Todo;
+
+  factory TodoEntity() => _instance;
+
+  TodoEntity._();
+
+  static final TodoEntity _instance = TodoEntity._();
 
   @override
   final EntitySchema schema = EntitySchema([
@@ -50,7 +56,7 @@ class TodoEntity extends GeneratedEntity {
       nullable: false,
       unique: false,
       relationType: RelationType.manyToOne,
-      relationEntity: User.entity,
+      relationEntity: User,
     ),
   ]);
 
@@ -61,7 +67,7 @@ class TodoEntity extends GeneratedEntity {
         name: map.containsKey("name") ? map['name'] : 'todo',
         isDone: map.containsKey("isDone") ? map['isDone'] : false,
         description: map.containsKey("description") ? map['description'] : null,
-        user: User.entity.from(map['user']));
+    );
   }
 
   @override

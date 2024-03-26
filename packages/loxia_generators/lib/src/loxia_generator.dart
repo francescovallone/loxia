@@ -24,10 +24,16 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
     buffer.writeln(
       ''' class ${element.name}Entity extends GeneratedEntity {
         @override
-        final String table = '${(annotation.read('table').literalValue as String?) ?? element.name.toLowerCase()}';
+        final Table table = Table('${(annotation.read('table').literalValue as String?) ?? element.name.toLowerCase()}');
 
         @override
         final Type entityCls = ${element.name};
+
+        factory ${element.name}Entity() => _instance;
+
+        ${element.name}Entity._();
+
+        static final ${element.name}Entity _instance = ${element.name}Entity._();
       '''
     );
     if(!element.fields.any((element) => _columnChecker.hasAnnotationOfExact(element))){
@@ -98,7 +104,7 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
             nullable: false,
             unique: false,
             relationType: $relationType,
-            relationEntity: $relationEntity.entity,
+            relationEntity: $relationEntity,
           ),
           '''
         );

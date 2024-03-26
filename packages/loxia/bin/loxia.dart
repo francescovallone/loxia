@@ -33,20 +33,19 @@ void main() async {
   final userFind = await repository.find(
     FindOptions(
       select: [],
-      where: [
-        {
-          'id': '0a23cfa4-62d6-43a1-9150-2bd8e7f309fa'
-        },
-      ],
+      relations: {
+        'todos': true
+      },
       orderBy: {
         'id': OrderBy.asc
       }
     )
   );
   print(userFind.firstOrNull?.toString());
+  print(userFind.first.todos);
   final todo = db.getRepository<Todo>();
   final todos = await todo.find();
-  print(todos.firstOrNull);
+  print(todos);
   // print("HELLO WORLD!");
   // final repository = db.getRepository<User>();
   

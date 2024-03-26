@@ -20,4 +20,8 @@ abstract class QueryRunner {
 
   Future<void> createExtension(String s, {bool ifNotExists = true});
 
+  Future<void> completeTable(GeneratedEntity entity);
+
+  Future<void> createTables(List<GeneratedEntity> entity, {required bool ifNotExists});
+
 }

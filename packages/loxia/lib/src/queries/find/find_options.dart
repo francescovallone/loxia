@@ -8,7 +8,7 @@ class FindOptions {
     this.orderBy = const {},
     this.limit,
     this.skip,
-    // this.relations
+    this.relations = const {},
   });
 
   final List<String> select;
@@ -20,5 +20,7 @@ class FindOptions {
   final int? limit;
 
   final int? skip;
+
+  final Map<String, bool> relations;
 
 }

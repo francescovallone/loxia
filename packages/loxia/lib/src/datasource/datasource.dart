@@ -31,8 +31,9 @@ class DataSource<T extends DataSourceOptions>{
       'uuid-ossp',
       ifNotExists: true,
     );
+    await _driver.queryRunner.createTables(options.entities, ifNotExists: true);
     for(var entity in options.entities){
-      await _driver.queryRunner.createTable(entity, ifNotExists: true);
+      await _driver.queryRunner.completeTable(entity);
     }
     _repositories.addAll(options.entities.map((e) => _generateRepository(e)));
   }

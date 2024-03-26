@@ -1,4 +1,5 @@
 import 'package:loxia/loxia.dart';
+import 'package:loxia/src/entity/table.dart';
 
 abstract class Entity {
 
@@ -8,7 +9,7 @@ abstract class Entity {
 
 abstract class GeneratedEntity {
 
-  String get table;
+  Table get table;
 
   EntitySchema get schema;
 
