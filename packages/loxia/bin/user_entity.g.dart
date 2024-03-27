@@ -65,15 +65,13 @@ class UserEntity extends GeneratedEntity {
 
   @override
   User from(Map<String, dynamic> map) {
-    print(map);
     return User(
         id: map.containsKey("id") ? map['id'] : '',
         email: map.containsKey("email") ? map['email'] : '',
         password: map.containsKey("password") ? map['password'] : '',
         firstName: map.containsKey("firstName") ? map['firstName'] : '',
         lastName: map.containsKey("lastName") ? map['lastName'] : '',
-        todos: List<Map<String, dynamic>>.from(map['todos'] ?? []).map(Todo.entity.from).toList()
-        );
+        todos: map['todos'].map(Todo.entity.from));
   }
 
   @override

@@ -49,6 +49,9 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
 
     final List<({String name, String field, dynamic defaultValue, bool isNullable, dynamic relationEntity })> fieldNames = [];
     final columnHelper = ColumnHelper();
+    if(element.fields.any((element) => element.isFinal)){
+      throw Exception('All fields must be mutable.');
+    }
     for (var f in (element).fields) {
       if (_columnChecker.hasAnnotationOf(f)) {
         final column = _columnChecker.firstAnnotationOf(f);
@@ -127,7 +130,7 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
             ${fieldNames.where((element) => element.relationEntity != null).map((e) => '${e.field}: ${
               e.relationEntity!.isDartCoreIterable || e.relationEntity!.isDartCoreList 
                 ? 'map[\'${e.name}\'].map(${columnHelper.getRelationEntity(e.relationEntity!)}.entity.from)'
-                : '${e.relationEntity}.entity.from(map[\'${e.name}\'])'
+                : '${columnHelper.getRelationEntity(e.relationEntity)}.entity.from(map[\'${e.name}\'])'
             }').join(',\n')}
           ); 
         }

@@ -67,7 +67,7 @@ class TodoEntity extends GeneratedEntity {
         name: map.containsKey("name") ? map['name'] : 'todo',
         isDone: map.containsKey("isDone") ? map['isDone'] : false,
         description: map.containsKey("description") ? map['description'] : null,
-    );
+        user: User.entity.from(map['user']));
   }
 
   @override

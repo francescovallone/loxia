@@ -9,41 +9,29 @@ import 'user_entity.dart';
 part 'todo_entity.g.dart';
 
 @EntityMeta()
-class Todo extends Entity{
-
+class Todo extends Entity {
   static TodoEntity get entity => TodoEntity();
 
-  @PrimaryKey(
-    uuid: true
-  )
-  final String id;
+  @PrimaryKey(uuid: true)
+  String id;
 
-  @Column(
-    defaultValue: 'todo',
-    unique: true
-  )
-  final String name;
+  @Column(defaultValue: 'todo', unique: true)
+  String name;
 
-  @Column(
-    defaultValue: false
-  )
-  final bool isDone;
-
+  @Column(defaultValue: false)
+  bool isDone;
 
   @Column()
-  final String? description;
+  String? description;
 
-  @ManyToOne(
-    on: User
-  )
-  final User? user;
+  @ManyToOne(on: User)
+  User? user;
 
   Todo({
     required this.id,
     required this.name,
     required this.isDone,
     this.description,
-    this.user,
+    this.user
   });
-  
 }

@@ -9,27 +9,24 @@ import 'todo_entity.dart';
 part 'user_entity.g.dart';
 
 @EntityMeta()
-class User extends Entity{
-
+class User extends Entity {
   static UserEntity get entity => UserEntity();
 
-  @PrimaryKey(
-    uuid: true
-  )
-  final String id;
+  @PrimaryKey(uuid: true)
+  String id;
   @Column()
-  final String email;
+  String email;
   @Column()
-  final String password;
+  String password;
   @Column()
-  final String firstName;
+  String firstName;
   @Column()
-  final String lastName;
+  String lastName;
 
   @OneToMany(
     on: Todo,
   )
-  final List<Todo> todos;
+  List<Todo> todos;
 
   User({
     required this.id,
@@ -39,7 +36,6 @@ class User extends Entity{
     required this.lastName,
     required this.todos,
   });
-
 
   @override
   String toString() {

@@ -5,17 +5,13 @@ import 'package:loxia/src/query_runner/query_runner.dart';
 import '../datasource/datasource.dart';
 
 mixin DriverOperations {
-
-  Future<List<Map<String, dynamic>>> find(FindOptions? options, GeneratedEntity entity);
-
+  Future<List<Map<String, dynamic>>> find(
+      FindOptions? options, GeneratedEntity entity);
 }
 
-mixin DriverTableOperations {
+mixin DriverTableOperations {}
 
-}
-
-abstract class Driver{
-
+abstract class Driver {
   Driver(this.connection);
 
   final DataSource connection;
@@ -29,5 +25,4 @@ abstract class Driver{
   String escape(String value);
 
   QueryRunner get queryRunner;
-
 }

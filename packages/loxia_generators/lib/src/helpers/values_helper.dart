@@ -23,8 +23,8 @@ class ColumnHelper {
     return 'RelationType.none';
   }
 
-  DartType getRelationEntity(DartType type) {
-    return (type is ParameterizedType ? type.typeArguments.firstOrNull ?? type : type);
+  String getRelationEntity(DartType type) {
+    return (type is ParameterizedType ? type.typeArguments.firstOrNull ?? type : type).getDisplayString(withNullability: false);
   }
   
 

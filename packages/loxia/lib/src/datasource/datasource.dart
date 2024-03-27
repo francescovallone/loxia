@@ -5,8 +5,7 @@ import '../drivers/driver.dart';
 import '../drivers/driver_factory.dart';
 import '../entity/entity_repository.dart';
 
-class DataSource<T extends DataSourceOptions>{
-
+class DataSource<T extends DataSourceOptions> {
   final T options;
   late Driver _driver;
 
@@ -18,12 +17,12 @@ class DataSource<T extends DataSourceOptions>{
 
   final List<EntityRepository> _repositories = [];
 
-  DataSource(this.options){
+  DataSource(this.options) {
     _driver = DriverFactory().create<T>(this);
   }
 
   Future<void> init() async {
-    if(isConnected){
+    if (isConnected) {
       throw Exception('Connection already established');
     }
     await _driver.connect();
@@ -32,7 +31,7 @@ class DataSource<T extends DataSourceOptions>{
       ifNotExists: true,
     );
     await _driver.queryRunner.createTables(options.entities, ifNotExists: true);
-    for(var entity in options.entities){
+    for (var entity in options.entities) {
       await _driver.queryRunner.completeTable(entity);
     }
     _repositories.addAll(options.entities.map((e) => _generateRepository(e)));
@@ -40,14 +39,14 @@ class DataSource<T extends DataSourceOptions>{
 
   EntityRepository<E> getRepository<E>() {
     final repository = _repositories.where((e) => e.entity.entityCls == E);
-    if(repository.isEmpty) {
+    if (repository.isEmpty) {
       throw Exception('Repository for $E not found');
     }
     return EntityRepository<E>.from(repository.first);
   }
 
   Future<void> destroy() async {
-    if(!isConnected){
+    if (!isConnected) {
       throw Exception('Connection already destroyed');
     }
     await _driver.dispose();
@@ -60,5 +59,4 @@ class DataSource<T extends DataSourceOptions>{
     repository.init(_driver.queryRunner);
     return repository;
   }
-
 }

@@ -13,20 +13,18 @@ abstract class DataSourceOptions {
   final List<GeneratedEntity> entities;
   final List<Migration> migrations;
 
-  const DataSourceOptions({
-    required this.host,
-    required this.port,
-    required this.database,
-    required this.username,
-    required this.password,
-    this.entities = const [],
-    this.type = DatabaseType.postgres,
-    this.migrations = const []
-  });
+  const DataSourceOptions(
+      {required this.host,
+      required this.port,
+      required this.database,
+      required this.username,
+      required this.password,
+      this.entities = const [],
+      this.type = DatabaseType.postgres,
+      this.migrations = const []});
 
   @override
   String toString() {
     return 'DataSourceOptions{type: $type, host: $host, port: $port, database: $database, username: $username}';
   }
-  
 }

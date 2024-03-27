@@ -3,12 +3,12 @@ import 'package:loxia/src/entity/entity.dart';
 import '../enums/relation_type_enum.dart';
 
 class EntitySchema {
-
   final List<FieldSchema> _fields;
 
   List<FieldSchema> get fields => _fields;
 
-  List<FieldSchema> get primaryKeys => _fields.where((f) => f.primaryKey).toList();
+  List<FieldSchema> get primaryKeys =>
+      _fields.where((f) => f.primaryKey).toList();
 
   EntitySchema(this._fields);
 
@@ -20,12 +20,9 @@ class EntitySchema {
   String toString() {
     return 'EntitySchema{fields: $_fields}';
   }
-
 }
 
-
 class FieldSchema {
-
   final String name;
   final String type;
   final bool primaryKey;
@@ -58,11 +55,9 @@ class FieldSchema {
   String toString() {
     return 'FieldSchema{name: $name, type: $type, isPrimaryKey: $primaryKey, isAutoIncrement: $autoIncrement, isUuid: $uuid, isNullable: $nullable}';
   }
-
 }
 
 class ColumnMetadata {
-
   final String name;
   final String type;
   final bool nullable;
@@ -76,12 +71,9 @@ class ColumnMetadata {
     this.unique = false,
     this.defaultValue,
   });
-
 }
 
-
 class RelationMetadata {
-
   final String referenceColumn;
   final String column;
   final GeneratedEntity? entity;
@@ -93,30 +85,23 @@ class RelationMetadata {
     this.referenceColumn = 'id',
     this.type = RelationType.oneToOne,
   });
-
 }
 
-class PrimaryKeyMetadata{
-
+class PrimaryKeyMetadata {
   final bool autoIncrement;
   final bool uuid;
   final String name;
   final String type;
 
-  const PrimaryKeyMetadata({
-    this.autoIncrement = false,
-    this.uuid = false,
-    required this.name,
-    required this.type
-  }): assert(
-    autoIncrement == false || uuid == false,
-    'autoIncrement and uuid cannot be true at the same time'
-  ), assert(
-    type == 'String' || type == 'int',
-    'Primary key type must be either String or int'
-  ), assert(
-    uuid == true && type == 'int',
-    'Primary key type must be String if uuid is true'
-  );
-
+  const PrimaryKeyMetadata(
+      {this.autoIncrement = false,
+      this.uuid = false,
+      required this.name,
+      required this.type})
+      : assert(autoIncrement == false || uuid == false,
+            'autoIncrement and uuid cannot be true at the same time'),
+        assert(type == 'String' || type == 'int',
+            'Primary key type must be either String or int'),
+        assert(uuid == true && type == 'int',
+            'Primary key type must be String if uuid is true');
 }

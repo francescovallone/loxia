@@ -1,4 +1,1 @@
-enum OrderBy {
-  asc,
-  desc
-}
+enum OrderBy { asc, desc }

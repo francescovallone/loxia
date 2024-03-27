@@ -1,7 +1,6 @@
 import 'package:loxia/src/enums/order_by_enum.dart';
 
 class FindOptions {
-
   FindOptions({
     this.where = const [],
     this.select = const [],
@@ -22,5 +21,4 @@ class FindOptions {
   final int? skip;
 
   final Map<String, bool> relations;
-
 }
