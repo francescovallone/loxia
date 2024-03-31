@@ -18,11 +18,17 @@ abstract class Driver {
 
   bool get isConnected;
 
+  String get parameterPrefix;
+
   Future<void> connect();
+
+  Future<void> afterConnect();
 
   Future<void> dispose();
 
-  String escape(String value);
+  String escape(String columnName);
+
+  String createParamter(String parameterName, int index);
 
   QueryRunner get queryRunner;
 }

@@ -1,4 +1,5 @@
 import 'package:loxia/loxia.dart';
+import 'package:loxia/src/drivers/postgres/postgres_driver.dart';
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/entity/entity_schema.dart';
 import 'package:loxia/src/entity/table.dart';
@@ -7,18 +8,17 @@ import 'package:loxia/src/enums/relation_type_enum.dart';
 import 'package:loxia/src/queries/find/find_options.dart';
 import 'package:loxia/src/query_runner/query_result.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
-import 'package:postgres/postgres.dart';
 
 class PostgresQueryRunner extends QueryRunner {
   final Map<String, GeneratedEntity> cachedEntities = {};
 
-  final Connection _connection;
+  final PostgresDriver _driver;
 
-  PostgresQueryRunner(this._connection);
+  PostgresQueryRunner(this._driver);
 
   @override
   Future<QueryResult> query(String query) async {
-    final result = await _connection.execute(query);
+    final result = await _driver.execute(query);
     final rows = result.map((row) {
       final map = <String, dynamic>{};
       for (var i = 0; i < row.length; i++) {
@@ -37,7 +37,7 @@ class PostgresQueryRunner extends QueryRunner {
   Future<List<Map<String, dynamic>>> getTableColumns(String table) async {
     final query =
         'SELECT column_name, column_default, is_nullable, data_type FROM information_schema.columns WHERE table_name = \'$table\' order by ordinal_position asc;';
-    final result = await _connection.execute(query);
+    final result = await _driver.execute(query);
     return result
         .map((e) => {
               'name': e[0],
@@ -53,13 +53,13 @@ class PostgresQueryRunner extends QueryRunner {
     final columnNameType = buildCreateColumn(column);
     final query =
         'ALTER TABLE ${escapeString(table)} ADD COLUMN $columnNameType;';
-    await _connection.execute(query);
+    await _driver.execute(query);
   }
 
   @override
   Future<void> dropColumn(String table, String column) async {
     final query = 'ALTER TABLE ${escapeString(table)} DROP COLUMN "$column";';
-    await _connection.execute(query);
+    await _driver.execute(query);
   }
 
   @override

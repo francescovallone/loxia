@@ -25,15 +25,8 @@ class DataSource<T extends DataSourceOptions> {
     if (isConnected) {
       throw Exception('Connection already established');
     }
-    await _driver.connect();
-    await _driver.queryRunner.createExtension(
-      'uuid-ossp',
-      ifNotExists: true,
-    );
-    await _driver.queryRunner.createTables(options.entities, ifNotExists: true);
-    for (var entity in options.entities) {
-      await _driver.queryRunner.completeTable(entity);
-    }
+    await driver.connect();
+    await driver.afterConnect();
     _repositories.addAll(options.entities.map((e) => _generateRepository(e)));
   }
 
