@@ -9,8 +9,6 @@ class DataSource<T extends DataSourceOptions> {
   final T options;
   late Driver _driver;
 
-  Driver get driver => _driver;
-
   bool get isConnected => _driver.isConnected;
 
   Iterable<GeneratedEntity> get entities => options.entities.map((e) => e);
@@ -25,8 +23,8 @@ class DataSource<T extends DataSourceOptions> {
     if (isConnected) {
       throw Exception('Connection already established');
     }
-    await driver.connect();
-    await driver.afterConnect();
+    await _driver.connect();
+    await _driver.afterConnect();
     _repositories.addAll(options.entities.map((e) => _generateRepository(e)));
   }
 

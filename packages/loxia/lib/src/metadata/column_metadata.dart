@@ -5,64 +5,64 @@ import 'relation_metadata.dart';
 
 class ColumnMetadata {
 
-  final GeneratedEntity entity;
+  // final GeneratedEntity entity;
 
-  final String target;
+  // final String target;
 
-  final RelationMetadata? relation;
+  // final RelationMetadata? relation;
 
-  final String name;
+  // final String name;
 
-  final String type;
+  // final String type;
 
-  final String length;
+  // final String length;
 
-  final int? width;
+  // final int? width;
 
-  final String? charset;
+  // final String? charset;
 
-  final bool primary;
+  // final bool primary;
 
-  final bool generated;
+  // final bool generated;
 
-  final bool nullable;
+  // final bool nullable;
 
-  final bool unique;
+  // final bool unique;
 
-  final dynamic defaultValue;
+  // final dynamic defaultValue;
 
-  final ColumnMetadata? referenceColumn;
+  // final ColumnMetadata? referenceColumn;
 
-  String get propertyPath {
-    final path = StringBuffer();
-    path.write(name);
-    if(referenceColumn?.name != name){
-      path.write('.${referenceColumn?.name}');
-    }
-    return path.toString();    
-  }
+  // String get propertyPath {
+  //   final path = StringBuffer();
+  //   path.write(name);
+  //   if(referenceColumn?.name != name){
+  //     path.write('.${referenceColumn?.name}');
+  //   }
+  //   return path.toString();    
+  // }
 
-  String get databasePath {
-    final path = StringBuffer();
-    path.write(databaseName);
-    if(referenceColumn?.databaseName != databaseName){
-      path.write('.${referenceColumn?.databaseName}');
-    }
-    return path.toString();
-  }
+  // String get databasePath {
+  //   final path = StringBuffer();
+  //   path.write(databaseName);
+  //   if(referenceColumn?.databaseName != databaseName){
+  //     path.write('.${referenceColumn?.databaseName}');
+  //   }
+  //   return path.toString();
+  // }
 
-  final String databaseName;
+  // final String databaseName;
 
-  String get aliasName {
-    return propertyPath.replaceAll('.', '_');
-  }
+  // String get aliasName {
+  //   return propertyPath.replaceAll('.', '_');
+  // }
 
-  const ColumnMetadata({
-    required this.name,
-    required this.type,
-    this.nullable = false,
-    this.unique = false,
-    this.defaultValue,
-  });
+  // const ColumnMetadata({
+  //   required this.name,
+  //   required this.type,
+  //   this.nullable = false,
+  //   this.unique = false,
+  //   this.defaultValue,
+  // });
 
 }

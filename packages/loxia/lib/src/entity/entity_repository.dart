@@ -26,12 +26,14 @@ final class EntityRepository<T> {
   // }
 
   Future<List<T>> query(String query) async {
-    final result = await _queryRunner.query(query);
-    return List<T>.from(result.map(entity.from));
+    // final result = await _queryRunner.query(query);
+    // return List<T>.from(result.map(entity.from));
+    return [];
   }
 
   Future<List<T>> find([FindOptions? options]) async {
-    final result = await _queryRunner.find(options, entity);
-    return List<T>.from(result.map(entity.from));
+    return [];
+    // final result = await _queryRunner.find(options, entity);
+    // return List<T>.from(result.map(entity.from));
   }
 }
