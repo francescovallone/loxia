@@ -1,5 +1,5 @@
 import 'package:loxia/src/entity/entity.dart';
-import 'package:loxia/src/queries/find/find_options.dart';
+import 'package:loxia/src/queries/find_options.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
 
 final class EntityRepository<T> {
@@ -25,6 +25,29 @@ final class EntityRepository<T> {
   //   return
   // }
 
+  Future<dynamic> insert(Map<String, dynamic> data) async {
+    assert(data.isNotEmpty, 'Data cannot be empty');
+    return await _queryRunner.insert(entity, data);
+  }
+
+  Future<dynamic> update(
+    Map<String, dynamic> data,
+    {
+      required List<Map<String, dynamic>> where,
+    }
+  ) async {
+    assert(data.isNotEmpty, 'Data cannot be empty');
+    assert(where.isNotEmpty, 'Where cannot be empty');
+    return await _queryRunner.update(entity, data, where);
+  }
+
+  Future<dynamic> delete({
+    required Map<String, dynamic> where,
+  }) async {
+    assert(where.isNotEmpty, 'Where cannot be empty');
+    return await _queryRunner.delete(entity, where);
+  }
+
   Future<List<T>> query(String query) async {
     // final result = await _queryRunner.query(query);
     // return List<T>.from(result.map(entity.from));
@@ -32,8 +55,8 @@ final class EntityRepository<T> {
   }
 
   Future<List<T>> find([FindOptions? options]) async {
-    return [];
-    // final result = await _queryRunner.find(options, entity);
-    // return List<T>.from(result.map(entity.from));
+    final result = await _queryRunner.find(options ?? FindOptions(), entity);
+    return List<T>.from(result.map(entity.from));
   }
+
 }

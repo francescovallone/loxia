@@ -23,111 +23,132 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
     }
     buffer.writeln(
       ''' class ${element.name}Entity extends GeneratedEntity {
+        
         @override
-        final Table table = Table('${(annotation.read('table').literalValue as String?) ?? element.name.toLowerCase()}');
+        Type get entityCls => ${element.name};
 
-        @override
-        final Type entityCls = ${element.name};
-
-        factory ${element.name}Entity() => _instance;
-
-        ${element.name}Entity._();
-
-        static final ${element.name}Entity _instance = ${element.name}Entity._();
       '''
     );
     if(!element.fields.any((element) => _columnChecker.hasAnnotationOfExact(element))){
       throw Exception('The entity class must have at least one field annotated with @Column.');
     }
+    final schemaName = annotation.read('schema').literalValue as String?;
     buffer.writeln(
       '''
         @override
-        final EntitySchema schema = EntitySchema([
+        final Schema schema = Schema(
+          ${schemaName != null ? 'name: \'$schemaName\',' : ''}
+          table: Table(
+            name: '${annotation.read('table').literalValue as String? ?? element.name.toLowerCase()}',
       '''
     );
-    // GeneratorHelper helper = GeneratorHelper(element as ClassElement);
-
-    final List<({String name, String field, dynamic defaultValue, bool isNullable, dynamic relationEntity })> fieldNames = [];
+    // // GeneratorHelper helper = GeneratorHelper(element as ClassElement);
+    final List<ColumnInformation> columns = [];
     final columnHelper = ColumnHelper();
-    if(element.fields.any((element) => element.isFinal)){
-      throw Exception('All fields must be mutable.');
+    if(element.fields.any((element) => element.isFinal || element.isLate)){
+      throw Exception('All fields must be mutable, non-static and non-late.');
     }
-    for (var f in (element).fields) {
-      if (_columnChecker.hasAnnotationOf(f)) {
-        final column = _columnChecker.firstAnnotationOf(f);
-        print(column);
-        final name = column?.getField('name')?.toStringValue() ?? f.name;
-        final defaultValue = columnHelper.getDefaultValue(
-          column?.getField('defaultValue'),
-        );
-        final type = f.type.getDisplayString(withNullability: false);
-        final isNullable = f.type.isNullableType;
-        fieldNames.add((name: name, field: f.name, defaultValue: defaultValue, isNullable: isNullable, relationEntity: null));
-        if(column?.type?.getDisplayString(withNullability: false) == 'PrimaryKey'){
-          if(isNullable){
-            throw Exception('Primary key fields cannot be nullable.');
-          }
-          buffer.writeln(
-            '''FieldSchema(
-              name: '$name',
-              type: '$type',
-              nullable: $isNullable,
-              primaryKey: true,
-              autoIncrement: ${(column?.getField('autoIncrement')?.toBoolValue() ?? false)},
-              uuid: ${(column?.getField('uuid')?.toBoolValue() ?? false)},
-            ),
-            '''
-          );
-          continue;
+    for(var f in element.fields){
+      if(_columnChecker.hasAnnotationOf(f)){
+        if(!f.isStatic){
+          columns.add(getColumn(f, columnHelper));
         }
-        final isUnique = column?.getField('unique')?.toBoolValue() ?? false;
-        buffer.writeln(
-          '''FieldSchema(
-            name: '$name',
-            type: '$type',
-            nullable: $isNullable,
-            unique: $isUnique,
-            ${defaultValue == null && !isNullable ? '' : 'defaultValue: $defaultValue,'}
-          ),
-          '''
-        );
       }
       if(_relationChecker.hasAnnotationOf(f)){
         final relation = _relationChecker.firstAnnotationOf(f);
-        print(relation);
         final relationType = columnHelper.getRelationType(relation!);
         final relationEntity = columnHelper.getRelationEntity(f.type);
-        print(relationEntity);
-        print(relation.getField('hasForeignKey'));
-        print(relation.toStringValue());
-        buffer.writeln(
-          '''FieldSchema(
-            name: '${f.name}',
-            type: 'String',
-            nullable: false,
-            unique: false,
-            relationType: $relationType,
-            relationEntity: $relationEntity,
-          ),
-          '''
-        );
-        fieldNames.add((name: f.name, field: f.name, defaultValue: [], isNullable: false, relationEntity: f.type));
+        // buffer.writeln(
+        //   '''FieldSchema(
+        //     name: '${f.name}',
+        //     type: 'String',
+        //     nullable: false,
+        //     unique: false,
+        //     relationType: $relationType,
+        //     relationEntity: $relationEntity,
+        //   ),
+        //   '''
+        // );
+        // columns.add(ColumnInformation(
+        //   name: f.name,
+        //   type: 'String',
+        //   nullable: false,
+        //   relationEntity: f.type
+        // ));
       }
     }
+    if(columns.isNotEmpty){
+      buffer.writeln(
+        "columns: ["
+      );
+      for(var column in columns){
+        buffer.writeln(
+          '''ColumnMetadata(
+            name: '${column.name}',
+            type: '${column.type}',
+            explicitType: ${column.explicitType},
+            nullable: ${column.nullable},
+            primaryKey: ${column.primaryKey},
+            unique: ${column.unique},
+            defaultValue: ${column.defaultValue},
+            ${column.autoIncrement ? 'autoIncrement: true,' : ''}
+            ${column.uuid ? 'uuid: true,' : ''}
+            ${column.length.isNotEmpty ? 'length: \'${column.length}\',' : ''}
+            ${column.width != null ? 'width: ${column.width},' : ''}
+            ${column.charset != null ? 'charset: \'${column.charset}\',' : ''}
+          ),'''
+        );
+      }
+      buffer.writeln(
+        "],"
+      );
+    }
+    // final List<FieldInformation> fieldNames = [];
+    // final columnHelper = ColumnHelper();
+    // if(element.fields.any((element) => element.isFinal)){
+    //   throw Exception('All fields must be mutable.');
+    // }
+    // for (var f in (element).fields) {
+    //   if (_columnChecker.hasAnnotationOf(f)) {
+    //     buffer.writeln(getColumn(f, columnHelper, fieldNames));
+    //   }
+    //   if(_relationChecker.hasAnnotationOf(f)){
+    //     final relation = _relationChecker.firstAnnotationOf(f);
+    //     final relationType = columnHelper.getRelationType(relation!);
+    //     final relationEntity = columnHelper.getRelationEntity(f.type);
+    //     buffer.writeln(
+    //       '''FieldSchema(
+    //         name: '${f.name}',
+    //         type: 'String',
+    //         nullable: false,
+    //         unique: false,
+    //         relationType: $relationType,
+    //         relationEntity: $relationEntity,
+    //       ),
+    //       '''
+    //     );
+    //     fieldNames.add(FieldInformation(name: f.name, field: f.name, defaultValue: [], isNullable: false, relationEntity: f.type));
+    //   }
+    // }
     
-    buffer.writeln(']);');
+    buffer.writeln(
+      '''
+          ),
+        );
+      '''
+    );
 
-    buffer.writeln('\n');
+    // buffer.writeln('\n');
 
     buffer.writeln(
       '''
         @override
         ${element.name} from(Map<String, dynamic> map) {
           return ${element.name}(
-            ${fieldNames.where((element) => element.relationEntity == null).map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ${
-              !e.isNullable ? '${e.defaultValue ?? "''"}' : e.defaultValue 
+            ${columns.where((element) => element.relationEntity == null).map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ${
+              !e.nullable ? '${e.defaultValue ?? "''"}' : e.defaultValue 
             }').join(',\n')},\n
-            ${fieldNames.where((element) => element.relationEntity != null).map((e) => '${e.field}: ${
+            ${columns.where((element) => element.relationEntity != null).map((e) => '${e.field}: ${
               e.relationEntity!.isDartCoreIterable || e.relationEntity!.isDartCoreList 
                 ? 'map[\'${e.name}\'].map(${columnHelper.getRelationEntity(e.relationEntity!)}.entity.from)'
                 : '${columnHelper.getRelationEntity(e.relationEntity)}.entity.from(map[\'${e.name}\'])'
@@ -144,7 +165,7 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         @override
         Map<String, dynamic> to(${element.name} entity) {
           return {
-            ${fieldNames.map((e) => '\'${e.name}\': entity.${e.field}').join(',\n')}
+            ${columns.map((e) => '\'${e.name}\': entity.${e.field}').join(',\n')}
           };
         }
       '''
@@ -152,9 +173,90 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
 
     buffer.writeln('\n');
     buffer.writeln('}');
-    // final list = helper.generate();
-    // print(list);
-
     return buffer.toString();
   }
+
+  ColumnInformation getColumn(FieldElement f, ColumnHelper columnHelper){
+    final column = _columnChecker.firstAnnotationOf(f);
+    final name = column?.getField('name')?.toStringValue() ?? f.name;
+    final defaultValue = columnHelper.getDefaultValue(
+      column?.getField('defaultValue'),
+    );
+    final type = f.type.getDisplayString(withNullability: false);
+    final isNullable = f.type.isNullableType;
+    if(column?.type?.getDisplayString(withNullability: false) == 'PrimaryKey'){
+      if(isNullable){
+        throw Exception('Primary key fields cannot be nullable.');
+      }
+      return ColumnInformation(
+        name: name,
+        field: f.name,
+        type: type,
+        explicitType: column?.getField('explicitType')?.toStringValue(),
+        nullable: isNullable,
+        primaryKey: true,
+        autoIncrement: column?.getField('autoIncrement')?.toBoolValue() ?? false,
+        uuid: column?.getField('uuid')?.toBoolValue() ?? false
+      );
+    }
+    final isUnique = column?.getField('unique')?.toBoolValue() ?? false;
+    return ColumnInformation(
+      name: name,
+      field: f.name,
+      type: type,
+      explicitType: column?.getField('explicitType')?.toStringValue(),
+      nullable: isNullable,
+      defaultValue: defaultValue,
+      unique: isUnique
+    );
+  }
+}
+
+class ColumnInformation {
+
+  final String name;
+  final String field;
+  final String type;
+  final dynamic defaultValue;
+  final String? explicitType;
+  final bool nullable;
+  final bool primaryKey;
+  final dynamic relationEntity;
+  final bool autoIncrement;
+  final bool uuid;
+  final bool unique;
+  final String length;
+  final int? width;
+  final String? charset;
+
+  ColumnInformation({
+    required this.name,
+    required this.field,
+    required this.type,
+    this.explicitType,
+    this.defaultValue,
+    this.length = '',
+    this.width,
+    this.nullable = false,
+    this.unique = false,
+    this.primaryKey = false,
+    this.relationEntity,
+    this.autoIncrement = false,
+    this.uuid = false,
+    this.charset,
+  }): assert(
+    autoIncrement == false || uuid == false,
+    'autoIncrement and uuid cannot be true at the same time'
+  );
+
+}
+
+class RelationInformation {
+
+  final String name;
+
+  RelationInformation({
+    required this.name,
+  });
+
 }

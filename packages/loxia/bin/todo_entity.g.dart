@@ -8,66 +8,62 @@ part of 'todo_entity.dart';
 
 class TodoEntity extends GeneratedEntity {
   @override
-  final Table table = Table('todo');
+  Type get entityCls => Todo;
 
   @override
-  final Type entityCls = Todo;
-
-  factory TodoEntity() => _instance;
-
-  TodoEntity._();
-
-  static final TodoEntity _instance = TodoEntity._();
-
-  @override
-  final EntitySchema schema = EntitySchema([
-    FieldSchema(
-      name: 'id',
-      type: 'String',
-      nullable: false,
-      primaryKey: true,
-      autoIncrement: false,
-      uuid: true,
+  final Schema schema = Schema(
+    table: Table(
+      name: 'todo',
+      columns: [
+        ColumnMetadata(
+          name: 'id',
+          type: 'int',
+          explicitType: null,
+          nullable: false,
+          primaryKey: true,
+          unique: false,
+          defaultValue: null,
+          autoIncrement: true,
+        ),
+        ColumnMetadata(
+          name: 'name',
+          type: 'String',
+          explicitType: null,
+          nullable: false,
+          primaryKey: false,
+          unique: true,
+          defaultValue: 'todo',
+        ),
+        ColumnMetadata(
+          name: 'isDone',
+          type: 'bool',
+          explicitType: null,
+          nullable: false,
+          primaryKey: false,
+          unique: false,
+          defaultValue: false,
+        ),
+        ColumnMetadata(
+          name: 'description',
+          type: 'String',
+          explicitType: null,
+          nullable: true,
+          primaryKey: false,
+          unique: false,
+          defaultValue: null,
+        ),
+      ],
     ),
-    FieldSchema(
-      name: 'name',
-      type: 'String',
-      nullable: false,
-      unique: true,
-      defaultValue: 'todo',
-    ),
-    FieldSchema(
-      name: 'isDone',
-      type: 'bool',
-      nullable: false,
-      unique: false,
-      defaultValue: false,
-    ),
-    FieldSchema(
-      name: 'description',
-      type: 'String',
-      nullable: true,
-      unique: false,
-      defaultValue: null,
-    ),
-    FieldSchema(
-      name: 'user',
-      type: 'String',
-      nullable: false,
-      unique: false,
-      relationType: RelationType.manyToOne,
-      relationEntity: User,
-    ),
-  ]);
+  );
 
   @override
   Todo from(Map<String, dynamic> map) {
     return Todo(
-        id: map.containsKey("id") ? map['id'] : '',
-        name: map.containsKey("name") ? map['name'] : 'todo',
-        isDone: map.containsKey("isDone") ? map['isDone'] : false,
-        description: map.containsKey("description") ? map['description'] : null,
-        user: User.entity.from(map['user']));
+      id: map.containsKey("id") ? map['id'] : '',
+      name: map.containsKey("name") ? map['name'] : 'todo',
+      isDone: map.containsKey("isDone") ? map['isDone'] : false,
+      description: map.containsKey("description") ? map['description'] : null,
+    );
   }
 
   @override
@@ -76,8 +72,7 @@ class TodoEntity extends GeneratedEntity {
       'id': entity.id,
       'name': entity.name,
       'isDone': entity.isDone,
-      'description': entity.description,
-      'user': entity.user
+      'description': entity.description
     };
   }
 }

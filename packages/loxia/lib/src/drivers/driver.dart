@@ -1,6 +1,6 @@
 import 'package:loxia/src/connection.dart';
 import 'package:loxia/src/entity/entity.dart';
-import 'package:loxia/src/queries/find/find_options.dart';
+import 'package:loxia/src/queries/find_options.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
 
 import '../datasource/datasource.dart';

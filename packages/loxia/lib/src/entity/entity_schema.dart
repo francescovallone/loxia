@@ -1,24 +1,21 @@
-import 'package:loxia/src/entity/entity.dart';
+import 'package:loxia/src/entity/table.dart';
 
 import '../enums/relation_type_enum.dart';
 
-class EntitySchema {
-  final List<FieldSchema> _fields;
+class Schema {
 
-  List<FieldSchema> get fields => _fields;
+  final String? name;
 
-  List<FieldSchema> get primaryKeys =>
-      _fields.where((f) => f.primaryKey).toList();
+  final Table table;
 
-  EntitySchema(this._fields);
-
-  FieldSchema? getField(String name) {
-    return _fields.where((f) => f.name == name).firstOrNull;
-  }
+  Schema({
+    required this.table,
+    this.name,
+  });
 
   @override
   String toString() {
-    return 'EntitySchema{fields: $_fields}';
+    return 'Schema{name: $name}';
   }
 }
 

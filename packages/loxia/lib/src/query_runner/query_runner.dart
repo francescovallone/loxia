@@ -1,19 +1,28 @@
 import 'package:loxia/loxia.dart';
 import 'package:loxia/src/entity/entity.dart';
-import 'package:loxia/src/entity/entity_schema.dart';
-import 'package:loxia/src/entity/table.dart';
-import 'package:loxia/src/queries/find/find_options.dart';
+import 'package:loxia/src/metadata/column_metadata.dart';
+import 'package:loxia/src/queries/find_options.dart';
+
+import '../transformers/transformer.dart';
 
 abstract class QueryRunner {
 
   final Driver driver;
 
-  const QueryRunner(this.driver);
+  final Transformer transformer;
+
+  const QueryRunner(this.driver, this.transformer);
 
   Future<dynamic> query(String query);
 
-  // Future<List<Map<String, dynamic>>> find(
-  //     FindOptions? options, GeneratedEntity entity);
+  Future<List<Map<String, dynamic>>> find(
+      FindOptions options, GeneratedEntity entity);
+
+  Future<dynamic> insert(GeneratedEntity entity, Map<String, dynamic> data);
+
+  Future<dynamic> update(GeneratedEntity entity, Map<String, dynamic> data, List<Map<String, dynamic>> where);
+
+  Future<dynamic> delete(GeneratedEntity entity, Map<String, dynamic> where);
 
   // Future<List<String>> getDatabases();
 
@@ -23,45 +32,47 @@ abstract class QueryRunner {
 
   // Future<List<Table>> getTables();
 
-  // Future<bool> hasDatabase(String database);
+  Future<bool> hasDatabase(String database);
 
   // Future<String?> getCurrentDatabase();
 
-  // Future<bool> hasSchema(String schema);
+  Future<bool> hasSchema(String schema);
 
   // Future<String?> getCurrentSchema();
 
   Future<bool> hasTable(dynamic table);
 
-  // Future<void> createDatabase(String database, {bool ifNotExists = true});
+  Future<void> createDatabase(String database, {bool ifNotExists = true});
 
-  // Future<void> createSchema(String schema, {bool ifNotExists = true});
+  Future<void> createSchema(String schema, {bool ifNotExists = true});
 
-  Future<void> createTable(GeneratedEntity entity,
+  Future<void> createTable(Schema entitySchema,
       {bool ifNotExists = true,
       bool createForeignKeys = true,
       bool createIndices = true});
 
-  // Future<void> dropDatabase(String database, {bool ifExists = true});
+  String getSqlType(ColumnMetadata column);
 
-  // Future<void> dropSchema(String schema, {bool ifExists = true});
+  Future<void> dropDatabase(String database, {bool ifExists = true});
 
-  // Future<void> dropTable(String table,
-  //     {bool ifExists = true,
-  //     bool dropForeignKeys = true,
-  //     bool dropIndices = true});
+  Future<void> dropSchema(String schema, {bool ifExists = true});
 
-  // Future<void> addColumn(String table, ColumnMetadata column);
+  Future<void> dropTable(String table,
+      {bool ifExists = true,
+      bool dropForeignKeys = true,
+      bool dropIndices = true});
+
+  Future<void> addColumn(String table, ColumnMetadata column);
 
   // Future<void> addColumns(String table, List<ColumnMetadata> columns);
 
-  // Future<void> changeColumn(
-  //     String table, ColumnMetadata column, ColumnMetadata newColumn);
+  Future<void> changeColumn(
+      String table, ColumnMetadata column, ColumnMetadata newColumn);
 
   // Future<void> changeColumns(String table, List<ColumnMetadata> columns,
   //     List<ColumnMetadata> newColumns);
 
-  // Future<void> dropColumn(String table, String column);
+  Future<void> dropColumn(String table, String column);
 
   // Future<void> dropColumns(String table, List<String> columns);
 

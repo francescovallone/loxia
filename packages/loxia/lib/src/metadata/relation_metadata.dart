@@ -1,5 +1,3 @@
-import '../entity/entity.dart';
-import '../enums/relation_type_enum.dart';
 
 class RelationMetadata {
   // final GeneratedEntity entity;

@@ -1,8 +1,9 @@
 import 'package:loxia/src/enums/order_by_enum.dart';
+import 'package:loxia/src/queries/where_clause.dart';
 
 class FindOptions {
   FindOptions({
-    this.where = const [],
+    this.where,
     this.select = const [],
     this.orderBy = const {},
     this.limit,
@@ -12,7 +13,7 @@ class FindOptions {
 
   final List<String> select;
 
-  final List<Map<String, dynamic>> where;
+  final WhereClause? where;
 
   final Map<String, OrderBy> orderBy;
 

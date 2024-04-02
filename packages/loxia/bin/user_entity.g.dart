@@ -8,70 +8,72 @@ part of 'user_entity.dart';
 
 class UserEntity extends GeneratedEntity {
   @override
-  final Table table = Table('user');
+  Type get entityCls => User;
 
   @override
-  final Type entityCls = User;
-
-  factory UserEntity() => _instance;
-
-  UserEntity._();
-
-  static final UserEntity _instance = UserEntity._();
-
-  @override
-  final EntitySchema schema = EntitySchema([
-    FieldSchema(
-      name: 'id',
-      type: 'String',
-      nullable: false,
-      primaryKey: true,
-      autoIncrement: false,
-      uuid: true,
+  final Schema schema = Schema(
+    table: Table(
+      name: 'user',
+      columns: [
+        ColumnMetadata(
+          name: 'id',
+          type: 'int',
+          explicitType: null,
+          nullable: false,
+          primaryKey: true,
+          unique: false,
+          defaultValue: null,
+          autoIncrement: true,
+        ),
+        ColumnMetadata(
+          name: 'email',
+          type: 'String',
+          explicitType: null,
+          nullable: false,
+          primaryKey: false,
+          unique: false,
+          defaultValue: null,
+        ),
+        ColumnMetadata(
+          name: 'password',
+          type: 'String',
+          explicitType: null,
+          nullable: false,
+          primaryKey: false,
+          unique: false,
+          defaultValue: null,
+        ),
+        ColumnMetadata(
+          name: 'firstName',
+          type: 'String',
+          explicitType: null,
+          nullable: false,
+          primaryKey: false,
+          unique: false,
+          defaultValue: null,
+        ),
+        ColumnMetadata(
+          name: 'lastName',
+          type: 'String',
+          explicitType: null,
+          nullable: false,
+          primaryKey: false,
+          unique: false,
+          defaultValue: null,
+        ),
+      ],
     ),
-    FieldSchema(
-      name: 'email',
-      type: 'String',
-      nullable: false,
-      unique: false,
-    ),
-    FieldSchema(
-      name: 'password',
-      type: 'String',
-      nullable: false,
-      unique: false,
-    ),
-    FieldSchema(
-      name: 'firstName',
-      type: 'String',
-      nullable: false,
-      unique: false,
-    ),
-    FieldSchema(
-      name: 'lastName',
-      type: 'String',
-      nullable: false,
-      unique: false,
-    ),
-    FieldSchema(
-      name: 'todos',
-      type: 'String',
-      nullable: false,
-      unique: false,
-      relationType: RelationType.oneToMany,
-      relationEntity: Todo,
-    ),
-  ]);
+  );
 
   @override
   User from(Map<String, dynamic> map) {
     return User(
-        id: map.containsKey("id") ? map['id'] : '',
-        email: map.containsKey("email") ? map['email'] : '',
-        password: map.containsKey("password") ? map['password'] : '',
-        firstName: map.containsKey("firstName") ? map['firstName'] : '',
-        lastName: map.containsKey("lastName") ? map['lastName'] : '',
-        todos: map['todos'].map(Todo.entity.from));
+      id: map.containsKey("id") ? map['id'] : '',
+      email: map.containsKey("email") ? map['email'] : '',
+      password: map.containsKey("password") ? map['password'] : '',
+      firstName: map.containsKey("firstName") ? map['firstName'] : '',
+      lastName: map.containsKey("lastName") ? map['lastName'] : '',
+    );
   }
 
   @override
@@ -81,8 +83,7 @@ class UserEntity extends GeneratedEntity {
       'email': entity.email,
       'password': entity.password,
       'firstName': entity.firstName,
-      'lastName': entity.lastName,
-      'todos': entity.todos
+      'lastName': entity.lastName
     };
   }
 }

@@ -1,68 +1,74 @@
-
-import 'package:loxia/src/entity/entity.dart';
-
 import 'relation_metadata.dart';
 
 class ColumnMetadata {
 
-  // final GeneratedEntity entity;
+  final RelationMetadata? relation;
 
-  // final String target;
+  final String name;
 
-  // final RelationMetadata? relation;
+  final String type;
 
-  // final String name;
+  final String? explicitType;
 
-  // final String type;
+  final String length;
 
-  // final String length;
+  final int? width;
 
-  // final int? width;
+  final String? charset;
 
-  // final String? charset;
+  final bool primaryKey;
 
-  // final bool primary;
+  final bool autoIncrement;
 
-  // final bool generated;
+  final bool uuid;
 
-  // final bool nullable;
+  final bool nullable;
 
-  // final bool unique;
+  final bool unique;
 
-  // final dynamic defaultValue;
+  final dynamic defaultValue;
 
-  // final ColumnMetadata? referenceColumn;
+  final ColumnMetadata? referenceColumn;
 
-  // String get propertyPath {
-  //   final path = StringBuffer();
-  //   path.write(name);
-  //   if(referenceColumn?.name != name){
-  //     path.write('.${referenceColumn?.name}');
-  //   }
-  //   return path.toString();    
-  // }
+  String get propertyPath {
+    final path = StringBuffer();
+    path.write(name);
+    if(referenceColumn?.name != name){
+      path.write('.${referenceColumn?.name}');
+    }
+    return path.toString();    
+  }
 
-  // String get databasePath {
-  //   final path = StringBuffer();
-  //   path.write(databaseName);
-  //   if(referenceColumn?.databaseName != databaseName){
-  //     path.write('.${referenceColumn?.databaseName}');
-  //   }
-  //   return path.toString();
-  // }
+  String get databasePath {
+    final path = StringBuffer();
+    path.write(databaseName);
+    if(referenceColumn?.databaseName != databaseName){
+      path.write('.${referenceColumn?.databaseName}');
+    }
+    return path.toString();
+  }
 
-  // final String databaseName;
+  String databaseName = '';
 
-  // String get aliasName {
-  //   return propertyPath.replaceAll('.', '_');
-  // }
+  String get aliasName {
+    return propertyPath.replaceAll('.', '_');
+  }
 
-  // const ColumnMetadata({
-  //   required this.name,
-  //   required this.type,
-  //   this.nullable = false,
-  //   this.unique = false,
-  //   this.defaultValue,
-  // });
+  ColumnMetadata({
+    required this.name,
+    required this.type,
+    this.primaryKey = false,
+    this.autoIncrement = false,
+    this.relation,
+    this.explicitType,
+    this.referenceColumn,
+    this.length = '',
+    this.width,
+    this.nullable = false,
+    this.unique = false,
+    this.defaultValue,
+    this.charset,
+    this.uuid = false,
+  });
 
 }

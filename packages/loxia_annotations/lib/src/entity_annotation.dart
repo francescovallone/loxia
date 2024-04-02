@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart';
 
-/// The [Entity] annotation is used to define a class as an entity.
+/// The [EntityMeta] annotation is used to define a class as an entity.
 /// 
 /// An entity is a class that represents a table in the database.
 /// 
@@ -30,9 +30,13 @@ class EntityMeta{
   /// // The table name will be "users"
   /// ```
   final String? table;
+
+  /// If the schema name is not provided, Loxia will use the default schema name
+  final String? schema;
   
   const EntityMeta({
     this.table,
+    this.schema,
   });
   
 }

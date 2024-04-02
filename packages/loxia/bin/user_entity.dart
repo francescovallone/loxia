@@ -1,7 +1,7 @@
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/entity/entity_schema.dart';
 import 'package:loxia/src/entity/table.dart';
-import 'package:loxia/src/enums/relation_type_enum.dart';
+import 'package:loxia/src/metadata/column_metadata.dart';
 import 'package:loxia_annotations/loxia_annotations.dart';
 
 import 'todo_entity.dart';
@@ -12,8 +12,8 @@ part 'user_entity.g.dart';
 class User extends Entity {
   static UserEntity get entity => UserEntity();
 
-  @PrimaryKey(uuid: true)
-  String id;
+  @PrimaryKey(autoIncrement: true)
+  int id;
   @Column()
   String email;
   @Column()
@@ -34,7 +34,7 @@ class User extends Entity {
     required this.password,
     required this.firstName,
     required this.lastName,
-    required this.todos,
+    this.todos = const [],
   });
 
   @override

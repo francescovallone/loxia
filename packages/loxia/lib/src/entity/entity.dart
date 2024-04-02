@@ -1,14 +1,12 @@
-import 'package:loxia/loxia.dart';
-import 'package:loxia/src/entity/table.dart';
+
+import 'entity_schema.dart';
 
 abstract class Entity {
   static dynamic get entity => throw UnimplementedError();
 }
 
 abstract class GeneratedEntity {
-  Table get table;
-
-  EntitySchema get schema;
+  Schema get schema;
 
   Type get entityCls;
 
