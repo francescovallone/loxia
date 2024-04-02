@@ -1,4 +1,5 @@
 import '../metadata/column_metadata.dart';
+import '../metadata/relation_metadata.dart';
 
 class Table {
   final String name;
@@ -7,10 +8,11 @@ class Table {
 
   // final List<PrimaryKeyMetadata> primaryKeys = [];
 
-  // final List<RelationMetadata> foreignKeys = [];
+  final List<RelationMetadata> relations;
 
-  Table({
+  const Table({
     required this.name,
     this.columns = const [],
+    this.relations = const [],
   });
 }

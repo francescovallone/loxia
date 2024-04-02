@@ -1,13 +1,19 @@
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/entity/entity_schema.dart';
+import 'package:loxia/src/enums/relation_type_enum.dart';
 import 'package:loxia/src/metadata/column_metadata.dart';
 import 'package:loxia/src/queries/find_options.dart';
 import 'package:loxia/src/queries/where_clause.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
+import 'package:sqflite_common/sql.dart';
 
 class SqliteQueryRunner extends QueryRunner {
 
-  SqliteQueryRunner(super.driver, super.transformer);
+  List<GeneratedEntity> _entities = [];
+
+  SqliteQueryRunner(super.driver, super.transformer){
+    _entities.addAll(driver.dataSource.options.entities);
+  }
 
   @override
   Future<bool> hasTable(dynamic table) async {
@@ -42,7 +48,7 @@ class SqliteQueryRunner extends QueryRunner {
       }
     }
 
-    final columns = entitySchema.table.columns.map((column) {
+    String columns = entitySchema.table.columns.map((column) {
       if(column.primaryKey && column.uuid){
         throw Exception('Primary key column cannot be a UUID in SQLite');
       }
@@ -52,9 +58,32 @@ class SqliteQueryRunner extends QueryRunner {
       '''.trim();
     }).join(',\n');
 
+    final relations = entitySchema.table.relations.map((relation) {
+      String? referenceColumnName = relation.referenceColumn;
+      ColumnMetadata referenceColumn;
+      final referenceTable = _entities.where((element) => element.runtimeType == relation.inverseEntity).first.schema.table;
+      if(referenceColumnName == null){
+        referenceColumn = referenceTable.columns.where((element) => element.primaryKey).first;
+        referenceColumnName = referenceColumn.name;
+      }else{
+        referenceColumn = referenceTable.columns.where((element) => element.name == referenceColumnName).first;
+      }
+      if(relation.type == RelationType.oneToMany){
+       return ''; 
+      }
+      columns = '''
+          $columns,
+          ${relation.column} ${getSqlType(referenceColumn)} ${referenceColumn.nullable ? '' : 'NOT NULL '}
+        ''';
+      return '''
+        FOREIGN KEY (${relation.column}) REFERENCES ${referenceTable.name}($referenceColumnName)
+      '''.trim();
+    }).join(',\n');
+
     final querySql = '''
       CREATE TABLE ${ifNotExists ? 'IF NOT EXISTS ' : ''}${driver.escape(entitySchema.table.name)} (
         $columns
+        ${relations.isNotEmpty ? ',\n$relations' : ''}
       );
     ''';
     await query(querySql);
@@ -153,8 +182,15 @@ class SqliteQueryRunner extends QueryRunner {
     }
     querySql.write(' FROM ${entity.schema.table.name}');
     
+    if(options.relations.isNotEmpty){
+      for(var relation in entity.schema.table.relations){
+        final referenceTable = _entities.where((element) => element.runtimeType == relation.entity).first.schema.table;
+        querySql.write(' LEFT JOIN ${referenceTable.name} ON ${entity.schema.table.name}.${relation.column} = ${referenceTable.name}.${referenceTable.columns.where((element) => element.primaryKey).first.name}');
+      }
+    }
+
     if(options.where != null){
-      querySql.write(' WHERE ${WhereClause.build(options.where!, transformer)}');
+      querySql.write(' WHERE ${WhereClause.build(options.where!, transformer, entity.schema.table.name)}');
     }
 
     // if(options.orderBy.isNotEmpty){
@@ -183,6 +219,7 @@ class SqliteQueryRunner extends QueryRunner {
       }));
       transformedResult.add(newElement);
     }
+    print(transformedResult);
     return transformedResult;
   }
   

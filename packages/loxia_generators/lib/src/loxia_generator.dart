@@ -21,29 +21,20 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
     if(element is! ClassElement) {
       throw Exception('The @Entity annotation can only be used on classes.');
     }
-    buffer.writeln(
-      ''' class ${element.name}Entity extends GeneratedEntity {
-        
-        @override
-        Type get entityCls => ${element.name};
-
-      '''
-    );
     if(!element.fields.any((element) => _columnChecker.hasAnnotationOfExact(element))){
       throw Exception('The entity class must have at least one field annotated with @Column.');
     }
     final schemaName = annotation.read('schema').literalValue as String?;
     buffer.writeln(
       '''
-        @override
-        final Schema schema = Schema(
+        final generatedSchema = Schema(
           ${schemaName != null ? 'name: \'$schemaName\',' : ''}
           table: Table(
             name: '${annotation.read('table').literalValue as String? ?? element.name.toLowerCase()}',
       '''
     );
-    // // GeneratorHelper helper = GeneratorHelper(element as ClassElement);
     final List<ColumnInformation> columns = [];
+    final List<RelationInformation> relations = [];
     final columnHelper = ColumnHelper();
     if(element.fields.any((element) => element.isFinal || element.isLate)){
       throw Exception('All fields must be mutable, non-static and non-late.');
@@ -58,6 +49,14 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         final relation = _relationChecker.firstAnnotationOf(f);
         final relationType = columnHelper.getRelationType(relation!);
         final relationEntity = columnHelper.getRelationEntity(f.type);
+        relations.add(
+          RelationInformation(
+            column: f.name,
+            entity: element.name,
+            inverseEntity: relationEntity,
+            type: relationType
+          )
+        );
         // buffer.writeln(
         //   '''FieldSchema(
         //     name: '${f.name}',
@@ -103,6 +102,24 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         "],"
       );
     }
+    if(relations.isNotEmpty){
+      buffer.writeln(
+        "relations: ["
+      );
+      for(var relation in relations){
+        buffer.writeln(
+          '''RelationMetadata(
+            column: '${relation.column}',
+            entity: ${relation.inverseEntity}Entity,
+            inverseEntity: ${relation.entity}Entity,
+            type: ${relation.type},
+          ),'''
+        );
+      }
+      buffer.writeln(
+        "],"
+      );
+    }
     // final List<FieldInformation> fieldNames = [];
     // final columnHelper = ColumnHelper();
     // if(element.fields.any((element) => element.isFinal)){
@@ -137,6 +154,21 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         );
       '''
     );
+    buffer.writeln(
+      ''' class ${element.name}Entity extends GeneratedEntity {
+        
+        @override
+        Type get entityCls => ${element.name};
+
+      '''
+    );
+    buffer.writeln(
+      '''
+        @override
+        final Schema schema = generatedSchema;
+      '''
+    );
+    // // GeneratorHelper helper = GeneratorHelper(element as ClassElement);
 
     // buffer.writeln('\n');
 
@@ -253,10 +285,18 @@ class ColumnInformation {
 
 class RelationInformation {
 
-  final String name;
+  final String entity;
+  final String inverseEntity;
+  final String column;
+  final String? referenceColumn;
+  final String type;
 
   RelationInformation({
-    required this.name,
+    required this.column,
+    this.entity = '',
+    this.inverseEntity = '',
+    this.referenceColumn,
+    this.type = 'none',
   });
 
 }

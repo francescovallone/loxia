@@ -20,7 +20,6 @@ void main() async {
   DataSource db = DataSource(SqliteDataSourceOptions(
       database: 'test.db',
       entities: [User.entity, Todo.entity],
-      version: 2,
       migrations: [MigrationTest()]));
   
   await db.init();
@@ -49,7 +48,10 @@ void main() async {
             WhereClause(operator: Equal('Test2')),
           ]),),
         ])
-      )
+      ),
+      relations: {
+        'user': true
+      }
     )
   );
   print(resultWithWhere);

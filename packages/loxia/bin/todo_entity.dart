@@ -1,7 +1,9 @@
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/entity/entity_schema.dart';
 import 'package:loxia/src/entity/table.dart';
+import 'package:loxia/src/enums/relation_type_enum.dart';
 import 'package:loxia/src/metadata/column_metadata.dart';
+import 'package:loxia/src/metadata/relation_metadata.dart';
 import 'package:loxia_annotations/loxia_annotations.dart';
 
 import 'user_entity.dart';

@@ -6,64 +6,74 @@ part of 'user_entity.dart';
 // LoxiaGenerator
 // **************************************************************************
 
+final generatedSchema = Schema(
+  table: Table(
+    name: 'user',
+    columns: [
+      ColumnMetadata(
+        name: 'id',
+        type: 'int',
+        explicitType: null,
+        nullable: false,
+        primaryKey: true,
+        unique: false,
+        defaultValue: null,
+        autoIncrement: true,
+      ),
+      ColumnMetadata(
+        name: 'email',
+        type: 'String',
+        explicitType: null,
+        nullable: false,
+        primaryKey: false,
+        unique: false,
+        defaultValue: null,
+      ),
+      ColumnMetadata(
+        name: 'password',
+        type: 'String',
+        explicitType: null,
+        nullable: false,
+        primaryKey: false,
+        unique: false,
+        defaultValue: null,
+      ),
+      ColumnMetadata(
+        name: 'firstName',
+        type: 'String',
+        explicitType: null,
+        nullable: false,
+        primaryKey: false,
+        unique: false,
+        defaultValue: null,
+      ),
+      ColumnMetadata(
+        name: 'lastName',
+        type: 'String',
+        explicitType: null,
+        nullable: false,
+        primaryKey: false,
+        unique: false,
+        defaultValue: null,
+      ),
+    ],
+    relations: [
+      RelationMetadata(
+        column: 'todos',
+        entity: TodoEntity,
+        inverseEntity: UserEntity,
+        type: RelationType.oneToMany,
+      ),
+    ],
+  ),
+);
+
 class UserEntity extends GeneratedEntity {
   @override
   Type get entityCls => User;
 
   @override
-  final Schema schema = Schema(
-    table: Table(
-      name: 'user',
-      columns: [
-        ColumnMetadata(
-          name: 'id',
-          type: 'int',
-          explicitType: null,
-          nullable: false,
-          primaryKey: true,
-          unique: false,
-          defaultValue: null,
-          autoIncrement: true,
-        ),
-        ColumnMetadata(
-          name: 'email',
-          type: 'String',
-          explicitType: null,
-          nullable: false,
-          primaryKey: false,
-          unique: false,
-          defaultValue: null,
-        ),
-        ColumnMetadata(
-          name: 'password',
-          type: 'String',
-          explicitType: null,
-          nullable: false,
-          primaryKey: false,
-          unique: false,
-          defaultValue: null,
-        ),
-        ColumnMetadata(
-          name: 'firstName',
-          type: 'String',
-          explicitType: null,
-          nullable: false,
-          primaryKey: false,
-          unique: false,
-          defaultValue: null,
-        ),
-        ColumnMetadata(
-          name: 'lastName',
-          type: 'String',
-          explicitType: null,
-          nullable: false,
-          primaryKey: false,
-          unique: false,
-          defaultValue: null,
-        ),
-      ],
-    ),
-  );
+  final Schema schema = generatedSchema;
 
   @override
   User from(Map<String, dynamic> map) {

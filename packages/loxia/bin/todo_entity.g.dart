@@ -6,55 +6,65 @@ part of 'todo_entity.dart';
 // LoxiaGenerator
 // **************************************************************************
 
+final generatedSchema = Schema(
+  table: Table(
+    name: 'todo',
+    columns: [
+      ColumnMetadata(
+        name: 'id',
+        type: 'int',
+        explicitType: null,
+        nullable: false,
+        primaryKey: true,
+        unique: false,
+        defaultValue: null,
+        autoIncrement: true,
+      ),
+      ColumnMetadata(
+        name: 'name',
+        type: 'String',
+        explicitType: null,
+        nullable: false,
+        primaryKey: false,
+        unique: true,
+        defaultValue: 'todo',
+      ),
+      ColumnMetadata(
+        name: 'isDone',
+        type: 'bool',
+        explicitType: null,
+        nullable: false,
+        primaryKey: false,
+        unique: false,
+        defaultValue: false,
+      ),
+      ColumnMetadata(
+        name: 'description',
+        type: 'String',
+        explicitType: null,
+        nullable: true,
+        primaryKey: false,
+        unique: false,
+        defaultValue: null,
+      ),
+    ],
+    relations: [
+      RelationMetadata(
+        column: 'user',
+        entity: UserEntity,
+        inverseEntity: TodoEntity,
+        type: RelationType.manyToOne,
+      ),
+    ],
+  ),
+);
+
 class TodoEntity extends GeneratedEntity {
   @override
   Type get entityCls => Todo;
 
   @override
-  final Schema schema = Schema(
-    table: Table(
-      name: 'todo',
-      columns: [
-        ColumnMetadata(
-          name: 'id',
-          type: 'int',
-          explicitType: null,
-          nullable: false,
-          primaryKey: true,
-          unique: false,
-          defaultValue: null,
-          autoIncrement: true,
-        ),
-        ColumnMetadata(
-          name: 'name',
-          type: 'String',
-          explicitType: null,
-          nullable: false,
-          primaryKey: false,
-          unique: true,
-          defaultValue: 'todo',
-        ),
-        ColumnMetadata(
-          name: 'isDone',
-          type: 'bool',
-          explicitType: null,
-          nullable: false,
-          primaryKey: false,
-          unique: false,
-          defaultValue: false,
-        ),
-        ColumnMetadata(
-          name: 'description',
-          type: 'String',
-          explicitType: null,
-          nullable: true,
-          primaryKey: false,
-          unique: false,
-          defaultValue: null,
-        ),
-      ],
-    ),
-  );
+  final Schema schema = generatedSchema;
 
   @override
   Todo from(Map<String, dynamic> map) {

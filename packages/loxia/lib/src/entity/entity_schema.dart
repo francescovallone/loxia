@@ -8,7 +8,7 @@ class Schema {
 
   final Table table;
 
-  Schema({
+  const Schema({
     required this.table,
     this.name,
   });

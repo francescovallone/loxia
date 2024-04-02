@@ -19,7 +19,7 @@ class WhereClause {
     return 'WhereClause{_field: $_field, _operator: $_operator}';
   }
 
-  static String build(WhereClause whereClause, Transformer transformer, [String query = '']) {
+  static String build(WhereClause whereClause, Transformer transformer, String tableName, [String query = '']) {
     if(whereClause.operator is And || whereClause.operator is Or) {
       List<String> operators = [];
       for(var i = 0; i < whereClause.operator.value.length; i++) {
@@ -30,6 +30,7 @@ class WhereClause {
             operator: clause.operator
           ),
           transformer,
+          tableName,
           query
         ));
       }
@@ -38,7 +39,7 @@ class WhereClause {
       if(whereClause.field == null){
         throw Exception('Field is required when operator is not And or Or');
       }
-      return '${whereClause.field}${transformer.transform(whereClause.operator)}';
+      return '${!whereClause.field!.contains('.') ? '$tableName.${whereClause.field}' : '${whereClause.field}'}${transformer.transform(whereClause.operator)}';
     }
 
   }
