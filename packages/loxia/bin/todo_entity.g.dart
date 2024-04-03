@@ -68,6 +68,7 @@ class TodoEntity extends GeneratedEntity {
 
   @override
   Todo from(Map<String, dynamic> map) {
+    print(map);
     return Todo(
       id: map.containsKey("id") ? map['id'] : '',
       name: map.containsKey("name") ? map['name'] : 'todo',

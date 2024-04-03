@@ -47,11 +47,11 @@ void main() async {
             WhereClause(operator: Equal('Todo 1')),
             WhereClause(operator: Equal('Test2')),
           ]),),
-        ])
+        ]),
       ),
-      relations: {
-        'user': true
-      }
+      select: [
+        'user.email'
+      ]
     )
   );
   print(resultWithWhere);

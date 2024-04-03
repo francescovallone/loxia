@@ -1,3 +1,4 @@
+import 'package:loxia/src/drivers/sqlite/sqlite_result_parser.dart';
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/entity/entity_schema.dart';
 import 'package:loxia/src/enums/relation_type_enum.dart';
@@ -173,15 +174,26 @@ class SqliteQueryRunner extends QueryRunner {
   
   @override
   Future<List<Map<String, dynamic>>> find(FindOptions options, GeneratedEntity entity) async {
-    StringBuffer querySql = StringBuffer('SELECT ');
-    if(options.select.isEmpty){
-      querySql.write('*');
-    } else {
-      querySql.write(options.select.join(', '));
+    assert(
+      options.select.any((element) => element.contains('.')) && options.relations.isNotEmpty,
+      'Selecting columns from a relation requires a relation to be defined'
+    );
+    final relationColumnsInSelect = options.select.where((element) => element.contains('.')).map((e) => e.split('.').first).toSet();
+    final relations = Map<String, bool>.from(options.relations);
+    if(relationColumnsInSelect.isNotEmpty){
+      assert(
+        relations.keys.any((element) => relationColumnsInSelect.contains(element)),
+        'Selecting columns from a relation requires a relation to be defined'
+      );
+      for(final relation in relationColumnsInSelect){
+        relations.putIfAbsent(relation, () => true);
+      }
     }
+    StringBuffer querySql = StringBuffer('SELECT ');
+    final columns = _getColumns(entity, relations.keys, options.select);
+    querySql.write(columns.join(', '));
     querySql.write(' FROM ${entity.schema.table.name}');
-    
-    if(options.relations.isNotEmpty){
+    if(relations.isNotEmpty){
       for(var relation in entity.schema.table.relations){
         final referenceTable = _entities.where((element) => element.runtimeType == relation.entity).first.schema.table;
         querySql.write(' LEFT JOIN ${referenceTable.name} ON ${entity.schema.table.name}.${relation.column} = ${referenceTable.name}.${referenceTable.columns.where((element) => element.primaryKey).first.name}');
@@ -205,22 +217,36 @@ class SqliteQueryRunner extends QueryRunner {
     }
     print(querySql);
     final result = await query(querySql.toString());
-    final transformedResult = List<Map<String, dynamic>>.empty(growable: true);
-    for(Map<String, dynamic> obj in result){
-      final newElement = Map<String, dynamic>.fromEntries(obj.entries.map((e) {
-        final column = entity.schema.table.columns.where((element) => element.name == e.key).firstOrNull;
-        if(column?.type == 'DateTime'){
-          return MapEntry(e.key, DateTime.parse(e.value));
-        }
-        if(column?.type == 'bool'){
-          return MapEntry(e.key, e.value == 1);
-        }
-        return MapEntry(e.key, e.value);
-      }));
-      transformedResult.add(newElement);
-    }
-    print(transformedResult);
+    final transformedResult = SqliteResultParser(
+      entity,
+      _entities
+    ).parse(result);
     return transformedResult;
+  }
+
+  List<String> _getColumns(GeneratedEntity entity, Iterable<String> relations, List<String> select){
+    final table = entity.schema.table;
+    final sanitizedSelect = select.where((element) => !element.contains('.'));
+    final columns = List<String>.from([
+      ...table.columns.map((column) => column.name).where((element) => sanitizedSelect.isEmpty || sanitizedSelect.contains(element)),
+      ...table.relations.map((e) => e.column).where((element) =>  sanitizedSelect.isEmpty || sanitizedSelect.contains(element))
+    ].map((e) => '${table.name}.$e'));
+    final relationsTable = table.relations.where((element) => relations.isNotEmpty && relations.contains(element.column));
+    for(var relation in relationsTable){
+      final referenceTable = _entities.where((element) => element.runtimeType == relation.entity).first.schema.table;
+      final referenceColumns = referenceTable.columns.where((element) => select.contains('${referenceTable.name}.${element.name}') || select.isEmpty);
+      for(final relationColumn in referenceColumns){
+        final index = columns.indexOf(relationColumn.name);
+        if(index > -1){
+          columns[index] = '${entity.schema.table.name}.${columns[index]}';
+          columns.add('${referenceTable.name}.${relationColumn.name} as ${referenceTable.name}_${relationColumn.name}');
+        }else{
+          columns.add('${referenceTable.name}.${relationColumn.name}');
+        }
+      }
+    }
+    return columns;
+    
   }
   
   @override
