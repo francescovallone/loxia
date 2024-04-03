@@ -5,11 +5,10 @@ import 'package:loxia/src/metadata/column_metadata.dart';
 import 'package:loxia/src/queries/find_options.dart';
 import 'package:loxia/src/queries/where_clause.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
-import 'package:sqflite_common/sql.dart';
 
 class SqliteQueryRunner extends QueryRunner {
 
-  List<GeneratedEntity> _entities = [];
+  final List<GeneratedEntity> _entities = [];
 
   SqliteQueryRunner(super.driver, super.transformer){
     _entities.addAll(driver.dataSource.options.entities);
@@ -204,6 +203,7 @@ class SqliteQueryRunner extends QueryRunner {
     if(options.skip != null){
       querySql.write(' OFFSET ${options.skip}');
     }
+    print(querySql);
     final result = await query(querySql.toString());
     final transformedResult = List<Map<String, dynamic>>.empty(growable: true);
     for(Map<String, dynamic> obj in result){
