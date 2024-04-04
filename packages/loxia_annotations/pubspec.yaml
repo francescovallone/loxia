@@ -1,5 +1,5 @@
 name: loxia_annotations
-description: A sample command-line application.
+description: Annotations for the Loxia ORM library.
 version: 0.0.1-dev.1
 repository: https://github.com/francescovallone/loxia
 

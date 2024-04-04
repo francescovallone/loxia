@@ -284,16 +284,18 @@ packages:
   loxia_annotations:
     dependency: "direct main"
     description:
-      path: "../loxia_annotations"
-      relative: true
-    source: path
+      name: loxia_annotations
+      sha256: f0438215f5c3956fa8d78a2074146af02f4d9aeba66f0505cab83f5eb3c6e0e0
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.1-dev.1"
   loxia_generators:
     dependency: "direct dev"
     description:
-      path: "../loxia_generators"
-      relative: true
-    source: path
+      name: loxia_generators
+      sha256: f62f235f54d1604f441285f7b50454b6a2306d6e0ddc21c725f91f66d0635145
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.1-dev.1"
   matcher:
     dependency: transitive
@@ -640,4 +642,4 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.3.0 <4.0.0"
+  dart: ">=3.3.1 <4.0.0"

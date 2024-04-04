@@ -1,6 +1,6 @@
 # Loxia Generators
 
-This package contains a set of generators for the Loxia framework. These generators are used to create the entities for the Loxia library.
+This library contains a set of generators for the Loxia ORM library. These generators are used to create the entities for the Loxia library.
 
 ## Installation
 

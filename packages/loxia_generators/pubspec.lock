@@ -164,9 +164,10 @@ packages:
   loxia_annotations:
     dependency: "direct main"
     description:
-      path: "../loxia_annotations"
-      relative: true
-    source: path
+      name: loxia_annotations
+      sha256: f0438215f5c3956fa8d78a2074146af02f4d9aeba66f0505cab83f5eb3c6e0e0
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.1-dev.1"
   matcher:
     dependency: transitive
