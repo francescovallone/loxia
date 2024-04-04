@@ -243,8 +243,8 @@ class SqliteQueryRunner extends QueryRunner {
     final columns = List<String>.from([
       ...table.columns.map((column) => column.name).where((element) =>
           sanitizedSelect.isEmpty || sanitizedSelect.contains(element)),
-      ...table.relations.map((e) => e.column).where((element) =>
-          sanitizedSelect.isEmpty || sanitizedSelect.contains(element))
+      ...table.relations.where((element) => element.type != RelationType.oneToMany).map((e) => e.column).where((element) =>
+          (sanitizedSelect.isEmpty || sanitizedSelect.contains(element)))
     ]);
     if (columns.isEmpty) {
       throw Exception(
