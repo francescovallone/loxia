@@ -1,12 +1,12 @@
 name: loxia
 description: Loxia is a Dart ORM library that aims to be fully-featured, easy-to-use, and flexible to manage entities and relations in your server-side applications.
-version: 0.0.1-dev.1
+version: 0.0.1-dev.2
 repository: https://github.com/francescovallone/loxia
 
 # repository: https://github.com/my_org/my_repo
 
 environment:
-  sdk: ^3.3.0
+  sdk: ^3.3.1
 
 # Add regular dependencies here.
 dependencies:
