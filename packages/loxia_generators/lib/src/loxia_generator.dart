@@ -175,7 +175,7 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
           return {
             ${columns.map((e) => '\'${e.name}\': entity.${e.field}').join(',\n')},\n
             ${relations.map((e) => '\'${e.column}\': ${e.referenceType!.isDartCoreIterable || e.referenceType!.isDartCoreList ? 'entity.${e.column}.map(${e.inverseEntity}.entity.to).toList()' : 'entity.${e.column} != null ? ${e.inverseEntity}.entity.to(entity.${e.column}!) : null'}').join(',\n')}
-          };
+          }..removeWhere((key, value) => value == null);
         }
       ''');
 
