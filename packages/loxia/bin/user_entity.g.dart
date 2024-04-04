@@ -78,11 +78,11 @@ class UserEntity extends GeneratedEntity {
   @override
   User from(Map<String, dynamic> map) {
     return User(
-        id: map.containsKey("id") ? map['id'] : null,
-        email: map.containsKey("email") ? map['email'] : null,
-        password: map.containsKey("password") ? map['password'] : null,
-        firstName: map.containsKey("firstName") ? map['firstName'] : null,
-        lastName: map.containsKey("lastName") ? map['lastName'] : null,
+        id: map.containsKey("id") ? map['id'] : -1,
+        email: map.containsKey("email") ? map['email'] : '',
+        password: map.containsKey("password") ? map['password'] : '',
+        firstName: map.containsKey("firstName") ? map['firstName'] : '',
+        lastName: map.containsKey("lastName") ? map['lastName'] : '',
         todos: map.containsKey('todos') &&
                 map['todos'] is List<Map<String, dynamic>>
             ? map['todos'].map(User.entity.from)

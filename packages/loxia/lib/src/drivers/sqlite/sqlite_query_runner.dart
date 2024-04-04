@@ -285,7 +285,7 @@ class SqliteQueryRunner extends QueryRunner {
     assert(data.isNotEmpty, 'Data cannot be empty');
     final entityColumns = entity.schema.table.columns;
     for (var column in entityColumns) {
-      if ((!data.keys.contains(column.name) ||
+      if ((!data.keys.contains(column.name) &&
               !data.keys.contains(column.aliasName)) &&
           (column.nullable == false &&
               column.defaultValue == null &&

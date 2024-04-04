@@ -292,11 +292,10 @@ packages:
   loxia_generators:
     dependency: "direct dev"
     description:
-      name: loxia_generators
-      sha256: f62f235f54d1604f441285f7b50454b6a2306d6e0ddc21c725f91f66d0635145
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1-dev.1"
+      path: "../loxia_generators"
+      relative: true
+    source: path
+    version: "0.0.1-dev.2"
   matcher:
     dependency: transitive
     description:

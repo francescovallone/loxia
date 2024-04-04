@@ -161,7 +161,7 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         @override
         ${element.name} from(Map<String, dynamic> map) {
           return ${element.name}(
-            ${columns.where((element) => element.relationEntity == null).map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ${!e.nullable ? '${e.defaultValue}' : e.defaultValue}').join(',\n')},\n
+            ${columns.where((element) => element.relationEntity == null).map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ${!e.nullable ? e.defaultValue ?? columnHelper.getFallbackValue(e.type) : null}').join(',\n')},\n
             ${relations.map((e) => '${e.column}: map.containsKey(\'${e.column}\') && map[\'${e.column}\'] is ${e.referenceType!.isDartCoreIterable || e.referenceType!.isDartCoreList ? 'List<Map<String, dynamic>> ? map[\'${e.column}\'].map(${e.entity}.entity.from) : []' : 'Map<String, dynamic> ? ${e.inverseEntity}.entity.from(map[\'${e.column}\']) : null'}').join(',\n')}
           ); 
         }

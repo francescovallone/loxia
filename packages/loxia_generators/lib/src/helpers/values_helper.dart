@@ -4,34 +4,48 @@ import 'package:analyzer/dart/element/type.dart';
 class ColumnHelper {
   dynamic getDefaultValue(DartObject? defaultValue) {
     if (defaultValue == null || defaultValue.isNull) return null;
-    if (defaultValue.type?.isDartCoreBool == true)
+    if (defaultValue.type?.isDartCoreBool == true) {
       return defaultValue.toBoolValue();
-    if (defaultValue.type?.isDartCoreDouble == true)
+    }
+    if (defaultValue.type?.isDartCoreDouble == true) {
       return defaultValue.toDoubleValue();
-    if (defaultValue.type?.isDartCoreInt == true)
+    }
+    if (defaultValue.type?.isDartCoreInt == true) {
       return defaultValue.toIntValue();
-    if (defaultValue.type?.isDartCoreString == true)
+    }
+    if (defaultValue.type?.isDartCoreString == true) {
       return "'${defaultValue.toStringValue()}'";
-    if (defaultValue.type?.isDartCoreList == true)
+    }
+    if (defaultValue.type?.isDartCoreList == true) {
       return defaultValue.toListValue();
-    if (defaultValue.type?.isDartCoreMap == true)
+    }
+    if (defaultValue.type?.isDartCoreMap == true) {
       return defaultValue.toMapValue();
-    if (defaultValue.type?.isDartCoreSet == true)
+    }
+    if (defaultValue.type?.isDartCoreSet == true) {
       return defaultValue.toSetValue();
+    }
     return defaultValue;
   }
 
-  String getRelationType(DartObject relation) {
-    if (relation.type?.getDisplayString(withNullability: false) == 'ManyToOne')
-      return 'RelationType.manyToOne';
-    if (relation.type?.getDisplayString(withNullability: false) == 'OneToMany')
-      return 'RelationType.oneToMany';
-    if (relation.type?.getDisplayString(withNullability: false) == 'OneToOne')
-      return 'RelationType.oneToOne';
-    if (relation.type?.getDisplayString(withNullability: false) == 'ManyToMany')
-      return 'RelationType.manyToMany';
-    return 'RelationType.none';
-  }
+  dynamic getFallbackValue(String type) => switch(type) {
+    'bool' => 'false',
+    'double' => 'double.nan',
+    'int' => '-1',
+    'String' => "''",
+    'List' => '[]',
+    'Map' => '{}',
+    'Set' => '{}',
+    _ => 'null'
+  };
+
+  String getRelationType(DartObject relation) => switch(relation.type?.getDisplayString(withNullability: false)){
+    'ManyToOne' => 'RelationType.manyToOne',
+    'OneToMany' => 'RelationType.oneToMany',
+    'OneToOne' => 'RelationType.oneToOne',
+    'ManyToMany' => 'RelationType.manyToMany',
+    _ => 'RelationType.none'
+  };
 
   String getRelationEntity(DartType type) {
     return (type is ParameterizedType
