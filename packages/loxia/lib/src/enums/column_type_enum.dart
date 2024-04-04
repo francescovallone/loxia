@@ -1,5 +1,4 @@
 enum ColumnType {
-
   int("int"),
   integer("integer"),
   tinyint("tinyint"),
@@ -33,5 +32,4 @@ enum ColumnType {
   final String value;
 
   const ColumnType(this.value);
-  
 }

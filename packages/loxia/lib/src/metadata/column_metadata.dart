@@ -1,7 +1,6 @@
 import 'relation_metadata.dart';
 
 class ColumnMetadata {
-
   final RelationMetadata? relation;
 
   final String name;
@@ -33,16 +32,16 @@ class ColumnMetadata {
   String get propertyPath {
     final path = StringBuffer();
     path.write(name);
-    if(referenceColumn?.name != name){
+    if (referenceColumn?.name != name) {
       path.write('.${referenceColumn?.name}');
     }
-    return path.toString();    
+    return path.toString();
   }
 
   String get databasePath {
     final path = StringBuffer();
     path.write(databaseName);
-    if(referenceColumn?.databaseName != databaseName){
+    if (referenceColumn?.databaseName != databaseName) {
       path.write('.${referenceColumn?.databaseName}');
     }
     return path.toString();
@@ -70,5 +69,4 @@ class ColumnMetadata {
     this.charset,
     this.uuid = false,
   });
-
 }

@@ -9,10 +9,9 @@ import 'package:loxia/src/queries/where_clause.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
 
 class SqliteQueryRunner extends QueryRunner {
-
   final List<GeneratedEntity> _entities = [];
 
-  SqliteQueryRunner(super.driver, super.transformer){
+  SqliteQueryRunner(super.driver, super.transformer) {
     _entities.addAll(driver.dataSource.options.entities);
   }
 
@@ -27,50 +26,54 @@ class SqliteQueryRunner extends QueryRunner {
     ''');
     return List<Map<String, dynamic>>.from(result ?? []).isNotEmpty;
   }
-  
+
   @override
   Future query(String query) async {
     return await driver.execute(query);
   }
 
   @override
-  Future<void> createTable(
-    Schema entitySchema, 
-    {
-      bool ifNotExists = true, 
-      bool createForeignKeys = true, 
-      bool createIndices = true
-    }
-  ) async {
-    if(ifNotExists){
+  Future<void> createTable(Schema entitySchema,
+      {bool ifNotExists = true,
+      bool createForeignKeys = true,
+      bool createIndices = true}) async {
+    if (ifNotExists) {
       final tableExists = await hasTable(entitySchema.table.name);
-      if(tableExists){
+      if (tableExists) {
         dropTable(entitySchema.table.name);
       }
     }
 
     String columns = entitySchema.table.columns.map((column) {
-      if(column.primaryKey && column.uuid){
+      if (column.primaryKey && column.uuid) {
         throw Exception('Primary key column cannot be a UUID in SQLite');
       }
       final type = getSqlType(column);
       return '''
-        ${column.name} $type ${column.primaryKey ? 'PRIMARY KEY ' : ''}${column.autoIncrement ? 'AUTOINCREMENT ': ''}${column.nullable ? '' : 'NOT NULL '}${column.unique ? 'UNIQUE ' : ''}${column.defaultValue != null ? 'DEFAULT ${column.type == 'bool' ? column.defaultValue ? 1 : 0 : column.defaultValue}' : ''}
-      '''.trim();
+        ${column.name} $type ${column.primaryKey ? 'PRIMARY KEY ' : ''}${column.autoIncrement ? 'AUTOINCREMENT ' : ''}${column.nullable ? '' : 'NOT NULL '}${column.unique ? 'UNIQUE ' : ''}${column.defaultValue != null ? 'DEFAULT ${column.type == 'bool' ? column.defaultValue ? 1 : 0 : column.defaultValue}' : ''}
+      '''
+          .trim();
     }).join(',\n');
 
     final relations = entitySchema.table.relations.map((relation) {
       String? referenceColumnName = relation.referenceColumn;
       ColumnMetadata referenceColumn;
-      final referenceTable = _entities.where((element) => element.runtimeType == relation.inverseEntity).first.schema.table;
-      if(referenceColumnName == null){
-        referenceColumn = referenceTable.columns.where((element) => element.primaryKey).first;
+      final referenceTable = _entities
+          .where((element) => element.runtimeType == relation.inverseEntity)
+          .first
+          .schema
+          .table;
+      if (referenceColumnName == null) {
+        referenceColumn =
+            referenceTable.columns.where((element) => element.primaryKey).first;
         referenceColumnName = referenceColumn.name;
-      }else{
-        referenceColumn = referenceTable.columns.where((element) => element.name == referenceColumnName).first;
+      } else {
+        referenceColumn = referenceTable.columns
+            .where((element) => element.name == referenceColumnName)
+            .first;
       }
-      if(relation.type == RelationType.oneToMany){
-       return ''; 
+      if (relation.type == RelationType.oneToMany) {
+        return '';
       }
       columns = '''
           $columns,
@@ -78,7 +81,8 @@ class SqliteQueryRunner extends QueryRunner {
         ''';
       return '''
         FOREIGN KEY (${relation.column}) REFERENCES ${referenceTable.name}($referenceColumnName)
-      '''.trim();
+      '''
+          .trim();
     }).join(',\n');
 
     final querySql = '''
@@ -89,16 +93,19 @@ class SqliteQueryRunner extends QueryRunner {
     ''';
     await query(querySql);
   }
-  
+
   @override
-  Future<void> dropTable(String table, {bool ifExists = true, bool dropForeignKeys = true, bool dropIndices = true}) async {
+  Future<void> dropTable(String table,
+      {bool ifExists = true,
+      bool dropForeignKeys = true,
+      bool dropIndices = true}) async {
     await query('''DROP TABLE ${ifExists ? 'IF EXISTS ' : ''}$table;''');
   }
-  
+
   @override
   String getSqlType(ColumnMetadata column) {
     final type = column.explicitType ?? column.type;
-    switch(type){
+    switch (type) {
       case 'String':
         return 'TEXT';
       case 'int':
@@ -111,82 +118,83 @@ class SqliteQueryRunner extends QueryRunner {
         return 'TEXT';
     }
     for (var supportedType in driver.supportedTypes) {
-      if(supportedType.toString().split('.').last == type){
+      if (supportedType.toString().split('.').last == type) {
         return type;
       }
     }
     throw Exception('Column ${column.name} uses unsupported type $type');
   }
-  
+
   @override
-  Future<void> changeColumn(String table, ColumnMetadata column, ColumnMetadata newColumn) async {
-    await query(
-      '''
+  Future<void> changeColumn(
+      String table, ColumnMetadata column, ColumnMetadata newColumn) async {
+    await query('''
         ALTER TABLE $table
         RENAME COLUMN ${column.name} TO ${newColumn.name};
-      '''
-    );
+      ''');
   }
-  
+
   @override
   Future<void> createDatabase(String database, {bool ifNotExists = true}) {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<void> createSchema(String schema, {bool ifNotExists = true}) {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<void> dropColumn(String table, String column) {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<void> dropDatabase(String database, {bool ifExists = true}) {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<void> dropSchema(String schema, {bool ifExists = true}) {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<bool> hasDatabase(String database) {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<bool> hasSchema(String schema) {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<void> addColumn(String table, ColumnMetadata column) async {
-    await query(
-      '''
+    await query('''
         ALTER TABLE $table
-        ADD COLUMN ${column.name} ${getSqlType(column)} ${column.primaryKey ? 'PRIMARY KEY ' : ''}${column.autoIncrement ? 'AUTOINCREMENT ': ''}${column.nullable ? '' : 'NOT NULL '}${column.unique ? 'UNIQUE ' : ''}${column.defaultValue != null ? 'DEFAULT ${column.type == 'bool' ? column.defaultValue ? 1 : 0 : column.defaultValue}' : ''};
-      '''
-    );
+        ADD COLUMN ${column.name} ${getSqlType(column)} ${column.primaryKey ? 'PRIMARY KEY ' : ''}${column.autoIncrement ? 'AUTOINCREMENT ' : ''}${column.nullable ? '' : 'NOT NULL '}${column.unique ? 'UNIQUE ' : ''}${column.defaultValue != null ? 'DEFAULT ${column.type == 'bool' ? column.defaultValue ? 1 : 0 : column.defaultValue}' : ''};
+      ''');
   }
-  
+
   @override
-  Future<List<Map<String, dynamic>>> find(FindOptions options, GeneratedEntity entity) async {
+  Future<List<Map<String, dynamic>>> find(
+      FindOptions options, GeneratedEntity entity) async {
     assert(
-      options.select.any((element) => element.contains('.')) && options.relations.isNotEmpty,
-      'Selecting columns from a relation requires a relation to be defined'
-    );
-    final relationColumnsInSelect = options.select.where((element) => element.contains('.')).map((e) => e.split('.').first).toSet();
+        options.select.any((element) => element.contains('.')) &&
+            options.relations.isNotEmpty,
+        'Selecting columns from a relation requires a relation to be defined');
+    final relationColumnsInSelect = options.select
+        .where((element) => element.contains('.'))
+        .map((e) => e.split('.').first)
+        .toSet();
     final relations = Map<String, bool>.from(options.relations);
-    if(relationColumnsInSelect.isNotEmpty){
+    if (relationColumnsInSelect.isNotEmpty) {
       assert(
-        relations.keys.any((element) => relationColumnsInSelect.contains(element)),
-        'Selecting columns from a relation requires a relation to be defined'
-      );
-      for(final relation in relationColumnsInSelect){
+          relations.keys
+              .any((element) => relationColumnsInSelect.contains(element)),
+          'Selecting columns from a relation requires a relation to be defined');
+      for (final relation in relationColumnsInSelect) {
         relations.putIfAbsent(relation, () => true);
       }
     }
@@ -194,82 +202,98 @@ class SqliteQueryRunner extends QueryRunner {
     final columns = _getColumns(entity, relations.keys, options.select);
     querySql.write(columns.join(', '));
     querySql.write(' FROM ${entity.schema.table.name}');
-    if(relations.isNotEmpty){
-      for(var relation in entity.schema.table.relations){
-        final referenceTable = _entities.where((element) => element.runtimeType == relation.entity).first.schema.table;
-        querySql.write(' LEFT JOIN ${referenceTable.name} ON ${entity.schema.table.name}.${relation.column} = ${referenceTable.name}.${referenceTable.columns.where((element) => element.primaryKey).first.name}');
+    if (relations.isNotEmpty) {
+      for (var relation in entity.schema.table.relations) {
+        final referenceTable = _entities
+            .where((element) => element.runtimeType == relation.entity)
+            .first
+            .schema
+            .table;
+        querySql.write(
+            ' LEFT JOIN ${referenceTable.name} ON ${entity.schema.table.name}.${relation.column} = ${referenceTable.name}.${referenceTable.columns.where((element) => element.primaryKey).first.name}');
       }
     }
 
-    if(options.where != null){
-      querySql.write(' WHERE ${WhereClause.build(options.where!, transformer, entity.schema.table.name)}');
+    if (options.where != null) {
+      querySql.write(
+          ' WHERE ${WhereClause.build(options.where!, transformer, entity.schema.table.name)}');
     }
 
     // if(options.orderBy.isNotEmpty){
     //   querySql.write(' ORDER BY ${options.orderBy.entries.map((e) => '${e.key} ${e.value}').join(', ')}');
     // }
 
-    if(options.limit != null){
+    if (options.limit != null) {
       querySql.write(' LIMIT ${options.limit}');
     }
 
-    if(options.skip != null){
+    if (options.skip != null) {
       querySql.write(' OFFSET ${options.skip}');
     }
     final result = await query(querySql.toString());
-    final transformedResult = SqliteResultParser(
-      entity,
-      _entities
-    ).parse(result);
+    final transformedResult =
+        SqliteResultParser(entity, _entities).parse(result);
     return transformedResult;
   }
 
-  List<String> _getColumns(GeneratedEntity entity, Iterable<String> relations, List<String> select){
+  List<String> _getColumns(
+      GeneratedEntity entity, Iterable<String> relations, List<String> select) {
     final table = entity.schema.table;
     final sanitizedSelect = select.where((element) => !element.contains('.'));
     final columns = List<String>.from([
-      ...table.columns.map((column) => column.name).where((element) => sanitizedSelect.isEmpty || sanitizedSelect.contains(element)),
-      ...table.relations.map((e) => e.column).where((element) =>  sanitizedSelect.isEmpty || sanitizedSelect.contains(element))
+      ...table.columns.map((column) => column.name).where((element) =>
+          sanitizedSelect.isEmpty || sanitizedSelect.contains(element)),
+      ...table.relations.map((e) => e.column).where((element) =>
+          sanitizedSelect.isEmpty || sanitizedSelect.contains(element))
     ]);
-    print(columns.isEmpty);
-    if(columns.isEmpty){
-      throw Exception('No columns of the entity ${entity.entityCls} are selected');
+    if (columns.isEmpty) {
+      throw Exception(
+          'No columns of the entity ${entity.entityCls} are selected');
     }
-    final relationsTable = table.relations.where((element) => relations.isNotEmpty && relations.contains(element.column));
-    for(var relation in relationsTable){
-      final referenceTable = _entities.where((element) => element.runtimeType == relation.entity).first.schema.table;
+    final relationsTable = table.relations.where((element) =>
+        relations.isNotEmpty && relations.contains(element.column));
+    for (var relation in relationsTable) {
+      final referenceTable = _entities
+          .where((element) => element.runtimeType == relation.entity)
+          .first
+          .schema
+          .table;
       final referenceColumns = referenceTable.columns;
-      for(final relationColumn in referenceColumns){
+      for (final relationColumn in referenceColumns) {
         final index = columns.indexOf(relationColumn.name);
-        final shouldAdd = select.contains('${referenceTable.name}.${relationColumn.name}') || select.isEmpty;
+        final shouldAdd =
+            select.contains('${referenceTable.name}.${relationColumn.name}') ||
+                select.isEmpty;
         String columnSelectSql;
-        if(index > -1){
+        if (index > -1) {
           columns[index] = '${entity.schema.table.name}.${columns[index]}';
-          columnSelectSql = '${referenceTable.name}.${relationColumn.name} as "${referenceTable.name}.${relationColumn.name}"';
-        }else{
+          columnSelectSql =
+              '${referenceTable.name}.${relationColumn.name} as "${referenceTable.name}.${relationColumn.name}"';
+        } else {
           columnSelectSql = '${referenceTable.name}.${relationColumn.name}';
         }
-        if(shouldAdd){
+        if (shouldAdd) {
           columns.add(columnSelectSql);
         }
       }
     }
     return columns;
-    
   }
-  
+
   @override
   Future insert(GeneratedEntity entity, Map<String, dynamic> data) async {
     assert(data.isNotEmpty, 'Data cannot be empty');
     final entityColumns = entity.schema.table.columns;
-    for(var column in entityColumns){
-      if(
-        (!data.keys.contains(column.name) || !data.keys.contains(column.aliasName)) &&
-        (column.nullable == false && column.defaultValue == null && column.autoIncrement == false)
-      ){
+    for (var column in entityColumns) {
+      if ((!data.keys.contains(column.name) ||
+              !data.keys.contains(column.aliasName)) &&
+          (column.nullable == false &&
+              column.defaultValue == null &&
+              column.autoIncrement == false)) {
         throw Exception('Column ${column.name} is required');
       }
-      if(column.autoIncrement && data.containsKey(column.name) || data.containsKey(column.aliasName)){
+      if (column.autoIncrement && data.containsKey(column.name) ||
+          data.containsKey(column.aliasName)) {
         data.remove(column.name);
       }
     }
@@ -280,13 +304,13 @@ class SqliteQueryRunner extends QueryRunner {
     buffer.write(columns);
     buffer.write(') VALUES (');
     final values = data.values.map((e) {
-      if(e is String){
+      if (e is String) {
         return "'$e'";
       }
-      if(e is DateTime){
+      if (e is DateTime) {
         return "'${e.toIso8601String()}'";
       }
-      if(e is bool){
+      if (e is bool) {
         return e ? 1 : 0;
       }
       return e;
@@ -295,20 +319,21 @@ class SqliteQueryRunner extends QueryRunner {
     buffer.write(');');
     return await query(buffer.toString());
   }
-  
+
   @override
-  Future<dynamic> update(GeneratedEntity entity, Map<String, dynamic> data, List<Map<String, dynamic>> where) async {
+  Future<dynamic> update(GeneratedEntity entity, Map<String, dynamic> data,
+      List<Map<String, dynamic>> where) async {
     assert(where.isEmpty, 'Where clause is required for update operation');
     assert(data.isEmpty, 'Data cannot be empty');
     final querySql = StringBuffer('UPDATE ${entity.schema.table.name} SET ');
     final values = data.entries.map((e) {
-      if(e.value is String){
+      if (e.value is String) {
         return "${e.key} = '${e.value}'";
       }
-      if(e.value is DateTime){
+      if (e.value is DateTime) {
         return "${e.key} = '${e.value.toIso8601String()}'";
       }
-      if(e.value is bool){
+      if (e.value is bool) {
         return "${e.key} = ${e.value ? 1 : 0}";
       }
       return "${e.key} = ${e.value}";
@@ -316,25 +341,28 @@ class SqliteQueryRunner extends QueryRunner {
 
     querySql.write(values);
 
-    if(where.isNotEmpty){
-      querySql.write(' WHERE ${where.map((e) => '(${e.entries.map((e) => '${e.key} = ${e.value}').join(' AND ')})').join(' OR ')}');
+    if (where.isNotEmpty) {
+      querySql.write(
+          ' WHERE ${where.map((e) => '(${e.entries.map((e) => '${e.key} = ${e.value}').join(' AND ')})').join(' OR ')}');
     }
-    
+
     return await query(querySql.toString());
   }
 
   @override
-  Future<dynamic> delete(GeneratedEntity entity, Map<String, dynamic> where) async {
+  Future<dynamic> delete(
+      GeneratedEntity entity, Map<String, dynamic> where) async {
     assert(where.isNotEmpty, 'Where clause is required for delete operation');
-    final querySql = StringBuffer('DELETE FROM ${entity.schema.table.name} WHERE ');
+    final querySql =
+        StringBuffer('DELETE FROM ${entity.schema.table.name} WHERE ');
     final values = where.entries.map((e) {
-      if(e.value is String){
+      if (e.value is String) {
         return "${e.key} = '${e.value}'";
       }
-      if(e.value is DateTime){
+      if (e.value is DateTime) {
         return "${e.key} = '${e.value.toIso8601String()}'";
       }
-      if(e.value is bool){
+      if (e.value is bool) {
         return "${e.key} = ${e.value ? 1 : 0}";
       }
       return "${e.key} = ${e.value}";
@@ -346,21 +374,20 @@ class SqliteQueryRunner extends QueryRunner {
 
   @override
   Future<int> count(CountOptions options, GeneratedEntity entity) async {
-    if(options.distinct == true && options.select == '*'){
+    if (options.distinct == true && options.select == '*') {
       throw Exception('Cannot count distinct on all columns');
-    } 
+    }
     StringBuffer querySql = StringBuffer('SELECT COUNT(');
-    if(options.distinct){
-      querySql.write('DISTINCT');
+    if (options.distinct) {
+      querySql.write('DISTINCT ');
     }
-    querySql.write(' ${options.select}) as count FROM ${entity.schema.table.name}');
-    if(options.where != null){
-      querySql.write(' WHERE ${WhereClause.build(options.where!, transformer, entity.schema.table.name)}');
+    querySql
+        .write('${options.select}) as count FROM ${entity.schema.table.name}');
+    if (options.where != null) {
+      querySql.write(
+          ' WHERE ${WhereClause.build(options.where!, transformer, entity.schema.table.name)}');
     }
-    print(querySql);
     final result = await query(querySql.toString());
     return result.isNotEmpty ? result[0]['count'] : 0;
   }
-  
-
 }

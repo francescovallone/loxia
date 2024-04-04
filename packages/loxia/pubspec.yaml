@@ -1,6 +1,6 @@
 name: loxia
 description: A sample command-line application.
-version: 1.0.0
+version: 0.0.1-dev.1
 # repository: https://github.com/my_org/my_repo
 
 environment:
@@ -11,11 +11,11 @@ dependencies:
   postgres: ^3.1.1
   sqflite_common: ^2.5.3
   sqflite_common_ffi: ^2.1.1+1
-  loxia_annotations: any
+  loxia_annotations: ^0.0.1-dev.1
   # path: ^1.8.0
 
 dev_dependencies:
-  loxia_generators: any
+  loxia_generators: ^0.0.1-dev.1
   build_runner: ^2.3.3
   lints: ^3.0.0
   test: ^1.24.0

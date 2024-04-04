@@ -1,4 +1,3 @@
-
 import 'entity_schema.dart';
 
 abstract class Entity {

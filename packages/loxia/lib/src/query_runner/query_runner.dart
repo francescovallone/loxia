@@ -7,7 +7,6 @@ import '../queries/count_options.dart';
 import '../transformers/transformer.dart';
 
 abstract class QueryRunner {
-
   final Driver driver;
 
   final Transformer transformer;
@@ -23,7 +22,8 @@ abstract class QueryRunner {
 
   Future<dynamic> insert(GeneratedEntity entity, Map<String, dynamic> data);
 
-  Future<dynamic> update(GeneratedEntity entity, Map<String, dynamic> data, List<Map<String, dynamic>> where);
+  Future<dynamic> update(GeneratedEntity entity, Map<String, dynamic> data,
+      List<Map<String, dynamic>> where);
 
   Future<dynamic> delete(GeneratedEntity entity, Map<String, dynamic> where);
 

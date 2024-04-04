@@ -138,7 +138,6 @@
 //     return query.toString();
 //   }
 
-  
 //   Future<void> completeTable(GeneratedEntity entity) async {
 //     final table = await hasTable(entity);
 //     print(table);
@@ -310,7 +309,7 @@
 //       throw Exception('''
 //         PostgreSQL version $majorVersion is not supported.
 //         Please upgrade to a version greater than 9.
-//         Or follow 
+//         Or follow
 //       ''');
 //     }
 //     await _connection.execute(

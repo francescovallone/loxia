@@ -31,7 +31,6 @@ class _UnifiedGenerator extends Generator {
     for (var generator in _generators) {
       for (var annotatedElement
           in library.annotatedWith(generator.typeChecker)) {
-
         final generatedValue = generator.generateForAnnotatedElement(
             annotatedElement.element, annotatedElement.annotation, buildStep);
         for (var value in _normalizeGeneratorOutput(generatedValue)) {
@@ -64,11 +63,9 @@ class _UnifiedGenerator extends Generator {
   }
 
   ArgumentError _argError(Object value) => ArgumentError(
-    'Must be a String or be an Iterable containing String values. '
-    'Found `${Error.safeToString(value)}` (${value.runtimeType}).');
-  
+      'Must be a String or be an Iterable containing String values. '
+      'Found `${Error.safeToString(value)}` (${value.runtimeType}).');
 
   @override
   String toString() => 'LoxiaGenerator';
-
 }

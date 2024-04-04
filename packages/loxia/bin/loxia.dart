@@ -21,7 +21,7 @@ void main() async {
       database: 'test.db',
       entities: [User.entity, Todo.entity],
       migrations: [MigrationTest()]));
-  
+
   await db.init();
   final repository = db.getRepository<Todo>();
   // final users = await repository.query('SELECT * FROM "user"');
@@ -33,46 +33,43 @@ void main() async {
   // final todo = db.getRepository<Todo>();
   // final todos = await todo.find();
   // print(todos);
-  final resultWithWhere = await repository.find(
-    FindOptions(
+  final resultWithWhere = await repository.find(FindOptions(
       where: WhereClause(
         field: 'id',
         operator: Or([
           WhereClause(operator: Equal(1)),
           WhereClause(operator: Equal("2")),
-          WhereClause(field: 'name', operator: Or([
-            WhereClause(operator: Equal('Todo 1')),
-            WhereClause(operator: Equal('Test2')),
-          ]),),
+          WhereClause(
+            field: 'name',
+            operator: Or([
+              WhereClause(operator: Equal('Todo 1')),
+              WhereClause(operator: Equal('Test2')),
+            ]),
+          ),
         ]),
       ),
       select: [],
-      relations: {
-        'user': true
-      }
-    )
-  );
+      relations: {'user': true}));
   print(resultWithWhere.firstOrNull?.user);
   final resultWithCount = await repository.findAndCount(
-    options: FindOptions(
-      where: WhereClause(
-        field: 'id',
-        operator: Or([
-          WhereClause(operator: Equal(1)),
-          WhereClause(operator: Equal("2")),
-          WhereClause(field: 'name', operator: Or([
-            WhereClause(operator: Equal('Todo 1')),
-            WhereClause(operator: Equal('Test2')),
-          ]),),
-        ]),
-      ),
-      select: [],
-      relations: {
-        'user': true
-      }
-    ),
-    distinct: false
-  );
+      options: FindOptions(
+          where: WhereClause(
+            field: 'id',
+            operator: Or([
+              WhereClause(operator: Equal(1)),
+              WhereClause(operator: Equal("2")),
+              WhereClause(
+                field: 'name',
+                operator: Or([
+                  WhereClause(operator: Equal('Todo 1')),
+                  WhereClause(operator: Equal('Test2')),
+                ]),
+              ),
+            ]),
+          ),
+          select: [],
+          relations: {'user': true}),
+      distinct: false);
   print(resultWithCount.results.firstOrNull?.user);
   // // final repository = db.getRepository<User>();
 

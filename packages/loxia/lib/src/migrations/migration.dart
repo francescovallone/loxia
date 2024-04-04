@@ -1,7 +1,6 @@
 import 'package:loxia/src/query_runner/query_runner.dart';
 
 abstract class Migration {
-
   /// This parameter should only be used for sqlite databases
   /// to keep track of the current version of the database
   /// schema.

@@ -3,7 +3,6 @@ import 'package:loxia/src/entity/table.dart';
 import '../enums/relation_type_enum.dart';
 
 class Schema {
-
   final String? name;
 
   final Table table;

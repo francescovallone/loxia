@@ -32,11 +32,9 @@ final class EntityRepository<T> {
   }
 
   Future<dynamic> update(
-    Map<String, dynamic> data,
-    {
-      required List<Map<String, dynamic>> where,
-    }
-  ) async {
+    Map<String, dynamic> data, {
+    required List<Map<String, dynamic>> where,
+  }) async {
     assert(data.isNotEmpty, 'Data cannot be empty');
     assert(where.isNotEmpty, 'Where cannot be empty');
     return await _queryRunner.update(entity, data, where);
@@ -60,13 +58,15 @@ final class EntityRepository<T> {
     return List<T>.from(result.map(entity.from));
   }
 
-  Future<({List<T> results, int count})> findAndCount({FindOptions? options, bool distinct = false}) async {
+  Future<({List<T> results, int count})> findAndCount(
+      {FindOptions? options, bool distinct = false}) async {
     final result = await _queryRunner.find(options ?? FindOptions(), entity);
-    final count = await _queryRunner.count(CountOptions.fromFindOptions(options ?? FindOptions(), distinct), entity);
+    final count = await _queryRunner.count(
+        CountOptions.fromFindOptions(options ?? FindOptions(), distinct),
+        entity);
     return (
       results: List<T>.from(result.map(entity.from)),
       count: count,
     );
   }
-
 }

@@ -11,7 +11,7 @@ class DriverFactory {
     final type = connection.options.type;
     switch (type) {
       case DatabaseType.postgres:
-        // return PostgresDriver(connection);
+      // return PostgresDriver(connection);
       case DatabaseType.sqlite:
         return SqliteDriver(connection);
       default:

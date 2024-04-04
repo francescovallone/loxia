@@ -1,4 +1,3 @@
-
 import 'package:loxia/src/enums/relation_type_enum.dart';
 
 class RelationMetadata {

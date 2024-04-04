@@ -12,7 +12,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'sqlite_datasource_options.dart';
 
 class SqliteDriver extends Driver<Database> {
-
   SqliteDriver(super.dataSource);
 
   @override
@@ -24,40 +23,44 @@ class SqliteDriver extends Driver<Database> {
   Future<void> connect() async {
     sqfliteFfiInit();
     final sqliteOptions = dataSource.options as SqliteDataSourceOptions;
-    connection = Connection(
-      await databaseFactoryFfi.openDatabase(
+    connection = Connection(await databaseFactoryFfi.openDatabase(
         '${Directory.current.absolute.path}/${sqliteOptions.database}',
         options: OpenDatabaseOptions(
-          version: sqliteOptions.version,
-          onConfigure: (db) async {
-            connection = Connection(db);
-            await execute('PRAGMA auto_vacuum = INCREMENTAL;');
-            await execute('PRAGMA foreign_keys = ON;');
-          },
-          onCreate: (db, version) async {
-            connection = Connection(db);
-            for (var entity in sqliteOptions.entities) {
-              await queryRunner.createTable(entity.schema, ifNotExists: true, createForeignKeys: true, createIndices: true);
-            }
-          },
-          onUpgrade: (db, oldVersion, newVersion) async {
-            connection = Connection(db);
-            for(var migration in sqliteOptions.migrations){
-              if(migration.version > oldVersion && migration.version <= newVersion){
-                await migration.up(queryRunner);
+            version: sqliteOptions.version,
+            onConfigure: (db) async {
+              connection = Connection(db);
+              await execute('PRAGMA auto_vacuum = INCREMENTAL;');
+              await execute('PRAGMA foreign_keys = ON;');
+            },
+            onCreate: (db, version) async {
+              connection = Connection(db);
+              for (var entity in sqliteOptions.entities) {
+                await queryRunner.createTable(entity.schema,
+                    ifNotExists: true,
+                    createForeignKeys: true,
+                    createIndices: true);
               }
-            }
-            for (var entity in sqliteOptions.entities) {
-              final tableExists = await queryRunner.hasTable(entity.schema.table.name);
-              if(!tableExists){
-                await queryRunner.createTable(entity.schema, ifNotExists: true, createForeignKeys: true, createIndices: true);
+            },
+            onUpgrade: (db, oldVersion, newVersion) async {
+              connection = Connection(db);
+              for (var migration in sqliteOptions.migrations) {
+                if (migration.version > oldVersion &&
+                    migration.version <= newVersion) {
+                  await migration.up(queryRunner);
+                }
               }
-            }
-          },
-          onDowngrade: onDatabaseDowngradeDelete
-        )
-      )
-    );
+              for (var entity in sqliteOptions.entities) {
+                final tableExists =
+                    await queryRunner.hasTable(entity.schema.table.name);
+                if (!tableExists) {
+                  await queryRunner.createTable(entity.schema,
+                      ifNotExists: true,
+                      createForeignKeys: true,
+                      createIndices: true);
+                }
+              }
+            },
+            onDowngrade: onDatabaseDowngradeDelete)));
   }
 
   @override
@@ -82,28 +85,26 @@ class SqliteDriver extends Driver<Database> {
   String get parameterPrefix => throw UnimplementedError();
 
   @override
-  QueryRunner get queryRunner => SqliteQueryRunner(this, SqlOperatorTransformer());
+  QueryRunner get queryRunner =>
+      SqliteQueryRunner(this, SqlOperatorTransformer());
 
   @override
-  List<ColumnType> get supportedTypes => [
-    ...ColumnType.values
-  ];
+  List<ColumnType> get supportedTypes => [...ColumnType.values];
 
   @override
   Future<dynamic> execute(String query) async {
-    if(query.startsWith('SELECT ')){
+    if (query.startsWith('SELECT ')) {
       return await connection?.internal.rawQuery(query);
     }
-    if(query.startsWith('INSERT ')){
+    if (query.startsWith('INSERT ')) {
       return await connection?.internal.rawInsert(query);
     }
-    if(query.startsWith('UPDATE ')){
+    if (query.startsWith('UPDATE ')) {
       return await connection?.internal.rawUpdate(query);
     }
-    if(query.startsWith('DELETE ')){
+    if (query.startsWith('DELETE ')) {
       return await connection?.internal.rawDelete(query);
     }
     return await connection?.internal.execute(query);
   }
-  
 }

@@ -12,7 +12,6 @@ part 'todo_entity.g.dart';
 
 @EntityMeta()
 class Todo extends Entity {
-  
   static TodoEntity get entity => TodoEntity();
 
   @PrimaryKey(autoIncrement: true)
@@ -30,11 +29,10 @@ class Todo extends Entity {
   @ManyToOne(on: User)
   User? user;
 
-  Todo({
-    required this.id,
-    required this.name,
-    required this.isDone,
-    this.description,
-    this.user
-  });
+  Todo(
+      {required this.id,
+      required this.name,
+      required this.isDone,
+      this.description,
+      this.user});
 }
