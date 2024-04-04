@@ -6,8 +6,8 @@ class FindOptions {
     this.where,
     this.select = const [],
     this.orderBy = const {},
-    this.limit,
-    this.skip,
+    this.limit = 100,
+    this.skip = 0,
     this.relations = const {},
   });
 

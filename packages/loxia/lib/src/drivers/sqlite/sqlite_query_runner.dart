@@ -3,6 +3,7 @@ import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/entity/entity_schema.dart';
 import 'package:loxia/src/enums/relation_type_enum.dart';
 import 'package:loxia/src/metadata/column_metadata.dart';
+import 'package:loxia/src/queries/count_options.dart';
 import 'package:loxia/src/queries/find_options.dart';
 import 'package:loxia/src/queries/where_clause.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
@@ -215,7 +216,6 @@ class SqliteQueryRunner extends QueryRunner {
     if(options.skip != null){
       querySql.write(' OFFSET ${options.skip}');
     }
-    print(querySql);
     final result = await query(querySql.toString());
     final transformedResult = SqliteResultParser(
       entity,
@@ -230,18 +230,27 @@ class SqliteQueryRunner extends QueryRunner {
     final columns = List<String>.from([
       ...table.columns.map((column) => column.name).where((element) => sanitizedSelect.isEmpty || sanitizedSelect.contains(element)),
       ...table.relations.map((e) => e.column).where((element) =>  sanitizedSelect.isEmpty || sanitizedSelect.contains(element))
-    ].map((e) => '${table.name}.$e'));
+    ]);
+    print(columns.isEmpty);
+    if(columns.isEmpty){
+      throw Exception('No columns of the entity ${entity.entityCls} are selected');
+    }
     final relationsTable = table.relations.where((element) => relations.isNotEmpty && relations.contains(element.column));
     for(var relation in relationsTable){
       final referenceTable = _entities.where((element) => element.runtimeType == relation.entity).first.schema.table;
-      final referenceColumns = referenceTable.columns.where((element) => select.contains('${referenceTable.name}.${element.name}') || select.isEmpty);
+      final referenceColumns = referenceTable.columns;
       for(final relationColumn in referenceColumns){
         final index = columns.indexOf(relationColumn.name);
+        final shouldAdd = select.contains('${referenceTable.name}.${relationColumn.name}') || select.isEmpty;
+        String columnSelectSql;
         if(index > -1){
           columns[index] = '${entity.schema.table.name}.${columns[index]}';
-          columns.add('${referenceTable.name}.${relationColumn.name} as ${referenceTable.name}_${relationColumn.name}');
+          columnSelectSql = '${referenceTable.name}.${relationColumn.name} as "${referenceTable.name}.${relationColumn.name}"';
         }else{
-          columns.add('${referenceTable.name}.${relationColumn.name}');
+          columnSelectSql = '${referenceTable.name}.${relationColumn.name}';
+        }
+        if(shouldAdd){
+          columns.add(columnSelectSql);
         }
       }
     }
@@ -333,6 +342,24 @@ class SqliteQueryRunner extends QueryRunner {
 
     querySql.write(values);
     return await query(querySql.toString());
+  }
+
+  @override
+  Future<int> count(CountOptions options, GeneratedEntity entity) async {
+    if(options.distinct == true && options.select == '*'){
+      throw Exception('Cannot count distinct on all columns');
+    } 
+    StringBuffer querySql = StringBuffer('SELECT COUNT(');
+    if(options.distinct){
+      querySql.write('DISTINCT');
+    }
+    querySql.write(' ${options.select}) as count FROM ${entity.schema.table.name}');
+    if(options.where != null){
+      querySql.write(' WHERE ${WhereClause.build(options.where!, transformer, entity.schema.table.name)}');
+    }
+    print(querySql);
+    final result = await query(querySql.toString());
+    return result.isNotEmpty ? result[0]['count'] : 0;
   }
   
 

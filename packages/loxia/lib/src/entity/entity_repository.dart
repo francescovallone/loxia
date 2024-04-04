@@ -1,4 +1,5 @@
 import 'package:loxia/src/entity/entity.dart';
+import 'package:loxia/src/queries/count_options.dart';
 import 'package:loxia/src/queries/find_options.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
 
@@ -57,6 +58,15 @@ final class EntityRepository<T> {
   Future<List<T>> find([FindOptions? options]) async {
     final result = await _queryRunner.find(options ?? FindOptions(), entity);
     return List<T>.from(result.map(entity.from));
+  }
+
+  Future<({List<T> results, int count})> findAndCount({FindOptions? options, bool distinct = false}) async {
+    final result = await _queryRunner.find(options ?? FindOptions(), entity);
+    final count = await _queryRunner.count(CountOptions.fromFindOptions(options ?? FindOptions(), distinct), entity);
+    return (
+      results: List<T>.from(result.map(entity.from)),
+      count: count,
+    );
   }
 
 }

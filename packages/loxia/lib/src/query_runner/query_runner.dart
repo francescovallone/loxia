@@ -3,6 +3,7 @@ import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/metadata/column_metadata.dart';
 import 'package:loxia/src/queries/find_options.dart';
 
+import '../queries/count_options.dart';
 import '../transformers/transformer.dart';
 
 abstract class QueryRunner {
@@ -17,6 +18,8 @@ abstract class QueryRunner {
 
   Future<List<Map<String, dynamic>>> find(
       FindOptions options, GeneratedEntity entity);
+
+  Future<int> count(CountOptions options, GeneratedEntity entity);
 
   Future<dynamic> insert(GeneratedEntity entity, Map<String, dynamic> data);
 

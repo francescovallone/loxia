@@ -24,9 +24,6 @@ void main() async {
   
   await db.init();
   final repository = db.getRepository<Todo>();
-  print(repository);
-  final todos = await repository.find();
-  print(todos.firstOrNull?.name);
   // final users = await repository.query('SELECT * FROM "user"');
   // print(users.firstOrNull?.firstName);
   // final userFind = await repository.find(FindOptions(
@@ -49,13 +46,34 @@ void main() async {
           ]),),
         ]),
       ),
-      select: [
-        'user.email'
-      ]
+      select: [],
+      relations: {
+        'user': true
+      }
     )
   );
-  print(resultWithWhere);
-  print("HELLO WORLD!");
+  print(resultWithWhere.firstOrNull?.user);
+  final resultWithCount = await repository.findAndCount(
+    options: FindOptions(
+      where: WhereClause(
+        field: 'id',
+        operator: Or([
+          WhereClause(operator: Equal(1)),
+          WhereClause(operator: Equal("2")),
+          WhereClause(field: 'name', operator: Or([
+            WhereClause(operator: Equal('Todo 1')),
+            WhereClause(operator: Equal('Test2')),
+          ]),),
+        ]),
+      ),
+      select: [],
+      relations: {
+        'user': true
+      }
+    ),
+    distinct: false
+  );
+  print(resultWithCount.results.firstOrNull?.user);
   // // final repository = db.getRepository<User>();
 
   // // final users = await repository.query('SELECT * FROM "users"');

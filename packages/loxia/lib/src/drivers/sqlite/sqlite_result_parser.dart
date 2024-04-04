@@ -1,7 +1,6 @@
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/entity/table.dart';
 import 'package:loxia/src/metadata/column_metadata.dart';
-import 'package:loxia/src/metadata/relation_metadata.dart';
 import 'package:loxia/src/queries/result_parser.dart';
 
 class SqliteResultParser extends ResultParser{
@@ -15,35 +14,48 @@ class SqliteResultParser extends ResultParser{
 
   @override
   List<Map<String, dynamic>> parse(List<Map<String, dynamic>> result) {
-    final relationsToParse = [];
+    final parsedRelations = {};
     final parsed = List<Map<String, dynamic>>.empty(growable: true);
     for(var r in result){
+      final currentRow = Map<String, dynamic>.from(r);
+      parsedRelations.clear();
       Map<String, dynamic> parsedResult = {};
-      for(var entry in r.entries){
+      for(var entry in currentRow.entries){
         var column = table.columns.where((element) => element.name == entry.key).firstOrNull;
         if(column == null) continue;
-        final possibleRelation = table.relations.where((element) => element.column == entry.key);
-        print(possibleRelation);
-        if(possibleRelation.isNotEmpty){
-          relationsToParse.add(entry);
-        }else{
-          parsedResult[entry.key] = _parseColumn(column, entry);
-        }
+        parsedResult[entry.key] = _parseColumn(column, entry);
       }
-      print(parsedResult);
+      currentRow.removeWhere((key, value) => parsedResult.containsKey(key));
+      final relationsToParse = [
+        for(var entry in currentRow.entries)
+          table.relations.where((element) => element.column == entry.key).firstOrNull
+      ].where((element) => element != null).toList();
+      for(final relation in relationsToParse){
+        final relationEntity = relations.where((element) => element.runtimeType == relation!.entity).firstOrNull;
+        if(relationEntity == null) continue;
+        final relationTable = relationEntity.schema.table;
+        final entries = <MapEntry<String, dynamic>>[];
+        for(var entry in currentRow.entries){
+          if(relationTable.columns.where((element) => element.name == entry.key || entry.key.split('.').last == element.name).isNotEmpty){
+            entries.add(entry);
+          }
+        }
+        parsedResult[relation!.column] = _parseRelation(
+          relationEntity, 
+          entries,
+        );
+      }
       parsed.add(parsedResult);
     }
     return parsed;
   }
 
-  MapEntry<String, dynamic> _parseRelation(RelationMetadata relation, MapEntry<String, dynamic> e, ){
-      final relatedEntity = relations.where((element) => element.runtimeType == relation.entity).firstOrNull;
-      if(relatedEntity == null) return e;
-      ColumnMetadata? relatedColumn = relatedEntity.schema.table.columns.where((element) => element.name == relation.referenceColumn).firstOrNull;
-      relatedColumn ??= relatedEntity.schema.table.columns.where((element) => element.primaryKey).firstOrNull;
-      return MapEntry(e.key, {
-        entity
-      });
+  dynamic _parseRelation(
+    GeneratedEntity relationEntity, 
+    List<MapEntry<String, dynamic>> relationColumns,
+  ){
+      final columns = Map<String, dynamic>.fromEntries(relationColumns.map((e) => MapEntry(e.key.split('.').last, e.value)));
+      return columns;
   }
 
   dynamic _parseColumn(ColumnMetadata column, MapEntry<String, dynamic> e){

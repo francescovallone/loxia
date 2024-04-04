@@ -49,12 +49,18 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         final relation = _relationChecker.firstAnnotationOf(f);
         final relationType = columnHelper.getRelationType(relation!);
         final relationEntity = columnHelper.getRelationEntity(f.type);
+        if(!f.type.isDartCoreIterable && !f.type.isDartCoreList){
+          if(!f.type.isNullableType){
+            throw Exception('Relation fields must be nullable.');
+          }
+        }
         relations.add(
           RelationInformation(
             column: f.name,
             entity: element.name,
             inverseEntity: relationEntity,
-            type: relationType
+            type: relationType,
+            referenceType: f.type
           )
         );
         // buffer.writeln(
@@ -178,12 +184,12 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         ${element.name} from(Map<String, dynamic> map) {
           return ${element.name}(
             ${columns.where((element) => element.relationEntity == null).map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ${
-              !e.nullable ? '${e.defaultValue ?? "''"}' : e.defaultValue 
+              !e.nullable ? '${e.defaultValue}' : e.defaultValue 
             }').join(',\n')},\n
-            ${columns.where((element) => element.relationEntity != null).map((e) => '${e.field}: ${
-              e.relationEntity!.isDartCoreIterable || e.relationEntity!.isDartCoreList 
-                ? 'map[\'${e.name}\'].map(${columnHelper.getRelationEntity(e.relationEntity!)}.entity.from)'
-                : '${columnHelper.getRelationEntity(e.relationEntity)}.entity.from(map[\'${e.name}\'])'
+            ${relations.map((e) => '${e.column}: map.containsKey(\'${e.column}\') && map[\'${e.column}\'] is ${
+              e.referenceType!.isDartCoreIterable || e.referenceType!.isDartCoreList 
+                ? 'List<Map<String, dynamic>> ? map[\'${e.column}\'].map(${e.entity}.entity.from) : []'
+                : 'Map<String, dynamic> ? ${e.inverseEntity}.entity.from(map[\'${e.column}\']) : null'
             }').join(',\n')}
           ); 
         }
@@ -197,7 +203,12 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         @override
         Map<String, dynamic> to(${element.name} entity) {
           return {
-            ${columns.map((e) => '\'${e.name}\': entity.${e.field}').join(',\n')}
+            ${columns.map((e) => '\'${e.name}\': entity.${e.field}').join(',\n')},\n
+            ${relations.map((e) => '\'${e.column}\': ${
+              e.referenceType!.isDartCoreIterable || e.referenceType!.isDartCoreList 
+                ? 'entity.${e.column}.map(${e.inverseEntity}.entity.to).toList()'
+                : 'entity.${e.column} != null ? ${e.inverseEntity}.entity.to(entity.${e.column}!) : null'
+            }').join(',\n')}
           };
         }
       '''
@@ -290,6 +301,7 @@ class RelationInformation {
   final String column;
   final String? referenceColumn;
   final String type;
+  final dynamic referenceType;
 
   RelationInformation({
     required this.column,
@@ -297,6 +309,7 @@ class RelationInformation {
     this.inverseEntity = '',
     this.referenceColumn,
     this.type = 'none',
+    this.referenceType,
   });
 
 }
