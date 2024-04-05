@@ -1,6 +1,6 @@
 name: loxia_generators
 description: Set of generators for the Loxia ORM library.
-version: 0.0.1-dev.2
+version: 0.0.1-dev.3
 repository: https://github.com/francescovallone/loxia
 
 # repository: https://github.com/my_org/my_repo
