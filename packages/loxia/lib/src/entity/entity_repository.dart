@@ -1,6 +1,8 @@
+import 'package:loxia/loxia.dart';
 import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/queries/count_options.dart';
 import 'package:loxia/src/queries/find_options.dart';
+import 'package:loxia/src/queries/where_clause.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
 
 final class EntityRepository<T> {
@@ -33,17 +35,15 @@ final class EntityRepository<T> {
 
   Future<dynamic> update(
     Map<String, dynamic> data, {
-    required List<Map<String, dynamic>> where,
+    required WhereClause where,
   }) async {
     assert(data.isNotEmpty, 'Data cannot be empty');
-    assert(where.isNotEmpty, 'Where cannot be empty');
     return await _queryRunner.update(entity, data, where);
   }
 
   Future<dynamic> delete({
-    required Map<String, dynamic> where,
+    required WhereClause where,
   }) async {
-    assert(where.isNotEmpty, 'Where cannot be empty');
     return await _queryRunner.delete(entity, where);
   }
 

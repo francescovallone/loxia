@@ -14,3 +14,7 @@
 ## 0.0.1-dev.4
 
 - Fix relations for SQLite integration.
+
+## 0.0.1-dev.5
+
+- Change where in update and delete with the WhereClause class

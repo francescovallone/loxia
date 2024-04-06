@@ -322,8 +322,7 @@ class SqliteQueryRunner extends QueryRunner {
 
   @override
   Future<dynamic> update(GeneratedEntity entity, Map<String, dynamic> data,
-      List<Map<String, dynamic>> where) async {
-    assert(where.isEmpty, 'Where clause is required for update operation');
+      WhereClause where) async {
     assert(data.isEmpty, 'Data cannot be empty');
     final querySql = StringBuffer('UPDATE ${entity.schema.table.name} SET ');
     final values = data.entries.map((e) {
@@ -341,34 +340,18 @@ class SqliteQueryRunner extends QueryRunner {
 
     querySql.write(values);
 
-    if (where.isNotEmpty) {
-      querySql.write(
-          ' WHERE ${where.map((e) => '(${e.entries.map((e) => '${e.key} = ${e.value}').join(' AND ')})').join(' OR ')}');
-    }
+    querySql.write(
+          ' WHERE ${WhereClause.build(where, transformer, entity.schema.table.name)}');
 
     return await query(querySql.toString());
   }
 
   @override
   Future<dynamic> delete(
-      GeneratedEntity entity, Map<String, dynamic> where) async {
-    assert(where.isNotEmpty, 'Where clause is required for delete operation');
+      GeneratedEntity entity, WhereClause where) async {
     final querySql =
-        StringBuffer('DELETE FROM ${entity.schema.table.name} WHERE ');
-    final values = where.entries.map((e) {
-      if (e.value is String) {
-        return "${e.key} = '${e.value}'";
-      }
-      if (e.value is DateTime) {
-        return "${e.key} = '${e.value.toIso8601String()}'";
-      }
-      if (e.value is bool) {
-        return "${e.key} = ${e.value ? 1 : 0}";
-      }
-      return "${e.key} = ${e.value}";
-    }).join(' AND ');
+        StringBuffer('DELETE FROM ${entity.schema.table.name} WHERE ${WhereClause.build(where, transformer, entity.schema.table.name)}');
 
-    querySql.write(values);
     return await query(querySql.toString());
   }
 

@@ -23,9 +23,9 @@ abstract class QueryRunner {
   Future<dynamic> insert(GeneratedEntity entity, Map<String, dynamic> data);
 
   Future<dynamic> update(GeneratedEntity entity, Map<String, dynamic> data,
-      List<Map<String, dynamic>> where);
+      WhereClause where);
 
-  Future<dynamic> delete(GeneratedEntity entity, Map<String, dynamic> where);
+  Future<dynamic> delete(GeneratedEntity entity, WhereClause where);
 
   // Future<List<String>> getDatabases();
 
