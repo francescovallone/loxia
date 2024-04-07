@@ -47,6 +47,15 @@ final generatedSchema = Schema(
         unique: false,
         defaultValue: null,
       ),
+      ColumnMetadata(
+        name: 'createdAt',
+        type: 'DateTime',
+        explicitType: null,
+        nullable: false,
+        primaryKey: false,
+        unique: false,
+        defaultValue: 'CURRENT_TIMESTAMP',
+      ),
     ],
     relations: [
       RelationMetadata(
@@ -73,6 +82,7 @@ class TodoEntity extends GeneratedEntity {
         name: map.containsKey("name") ? map['name'] : 'todo',
         isDone: map.containsKey("isDone") ? map['isDone'] : false,
         description: map.containsKey("description") ? map['description'] : null,
+        createdAt: map.containsKey("createdAt") ? map['createdAt'] : null,
         user: map.containsKey('user') && map['user'] is Map<String, dynamic>
             ? User.entity.from(map['user'])
             : null);
@@ -85,7 +95,8 @@ class TodoEntity extends GeneratedEntity {
       'name': entity.name,
       'isDone': entity.isDone,
       'description': entity.description,
+      'createdAt': entity.createdAt,
       'user': entity.user != null ? User.entity.to(entity.user!) : null
-    };
+    }..removeWhere((key, value) => value == null);
   }
 }

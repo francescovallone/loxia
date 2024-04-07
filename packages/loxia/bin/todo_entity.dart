@@ -26,6 +26,11 @@ class Todo extends Entity {
   @Column()
   String? description;
 
+  @Column(
+    defaultValue: 'CURRENT_TIMESTAMP'
+  )
+  DateTime createdAt;
+
   @ManyToOne(on: User)
   User? user;
 
@@ -33,6 +38,7 @@ class Todo extends Entity {
       {required this.id,
       required this.name,
       required this.isDone,
+      required this.createdAt,
       this.description,
       this.user});
 }

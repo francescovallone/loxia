@@ -49,8 +49,11 @@ class SqliteQueryRunner extends QueryRunner {
         throw Exception('Primary key column cannot be a UUID in SQLite');
       }
       final type = getSqlType(column);
+      final defaultValue = getDefaultValue(column);
+      print(column.name);
+      print("default: $defaultValue");
       return '''
-        ${column.name} $type ${column.primaryKey ? 'PRIMARY KEY ' : ''}${column.autoIncrement ? 'AUTOINCREMENT ' : ''}${column.nullable ? '' : 'NOT NULL '}${column.unique ? 'UNIQUE ' : ''}${column.defaultValue != null ? 'DEFAULT ${column.type == 'bool' ? column.defaultValue ? 1 : 0 : column.defaultValue}' : ''}
+        ${column.name} $type ${column.primaryKey ? 'PRIMARY KEY ' : ''}${column.autoIncrement ? 'AUTOINCREMENT ' : ''}${column.nullable ? '' : 'NOT NULL '}${column.unique ? 'UNIQUE ' : ''}$defaultValue
       '''
           .trim();
     }).join(',\n');
@@ -59,7 +62,7 @@ class SqliteQueryRunner extends QueryRunner {
       String? referenceColumnName = relation.referenceColumn;
       ColumnMetadata referenceColumn;
       final referenceTable = _entities
-          .where((element) => element.runtimeType == relation.inverseEntity)
+          .where((element) => element.runtimeType == relation.entity)
           .first
           .schema
           .table;
@@ -100,6 +103,26 @@ class SqliteQueryRunner extends QueryRunner {
       bool dropForeignKeys = true,
       bool dropIndices = true}) async {
     await query('''DROP TABLE ${ifExists ? 'IF EXISTS ' : ''}$table;''');
+  }
+
+  String getDefaultValue(ColumnMetadata column) {
+    final buffer = StringBuffer();
+    if (column.defaultValue != null) {
+      buffer.write('DEFAULT ');
+      if(column.defaultValue is String) {
+        final d = driver.supportedDefaults[column.defaultValue];
+        print(d);
+        if(d != null) {
+          buffer.write(d);
+        } else {
+          buffer.write('\'${column.defaultValue}\'');
+        }
+      }
+      if(column.defaultValue is bool) {
+        buffer.write(column.defaultValue ? 1 : 0);
+      }
+    }
+    return buffer.toString();
   }
 
   @override

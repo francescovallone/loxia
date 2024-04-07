@@ -98,6 +98,6 @@ class UserEntity extends GeneratedEntity {
       'firstName': entity.firstName,
       'lastName': entity.lastName,
       'todos': entity.todos.map(Todo.entity.to).toList()
-    };
+    }..removeWhere((key, value) => value == null);
   }
 }

@@ -107,4 +107,10 @@ class SqliteDriver extends Driver<Database> {
     }
     return await connection?.internal.execute(query);
   }
+  
+  @override
+  // TODO: implement supportedDefaults
+  Map<String, dynamic> get supportedDefaults => {
+    'CURRENT_TIMESTAMP': '(strftime(\'%Y-%m-%dT%H:%M:%fZ\', \'now\'))',
+  };
 }

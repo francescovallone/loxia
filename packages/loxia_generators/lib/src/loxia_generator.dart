@@ -60,23 +60,6 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
             inverseEntity: relationEntity,
             type: relationType,
             referenceType: f.type));
-        // buffer.writeln(
-        //   '''FieldSchema(
-        //     name: '${f.name}',
-        //     type: 'String',
-        //     nullable: false,
-        //     unique: false,
-        //     relationType: $relationType,
-        //     relationEntity: $relationEntity,
-        //   ),
-        //   '''
-        // );
-        // columns.add(ColumnInformation(
-        //   name: f.name,
-        //   type: 'String',
-        //   nullable: false,
-        //   relationEntity: f.type
-        // ));
       }
     }
     if (columns.isNotEmpty) {
@@ -111,33 +94,6 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
       }
       buffer.writeln("],");
     }
-    // final List<FieldInformation> fieldNames = [];
-    // final columnHelper = ColumnHelper();
-    // if(element.fields.any((element) => element.isFinal)){
-    //   throw Exception('All fields must be mutable.');
-    // }
-    // for (var f in (element).fields) {
-    //   if (_columnChecker.hasAnnotationOf(f)) {
-    //     buffer.writeln(getColumn(f, columnHelper, fieldNames));
-    //   }
-    //   if(_relationChecker.hasAnnotationOf(f)){
-    //     final relation = _relationChecker.firstAnnotationOf(f);
-    //     final relationType = columnHelper.getRelationType(relation!);
-    //     final relationEntity = columnHelper.getRelationEntity(f.type);
-    //     buffer.writeln(
-    //       '''FieldSchema(
-    //         name: '${f.name}',
-    //         type: 'String',
-    //         nullable: false,
-    //         unique: false,
-    //         relationType: $relationType,
-    //         relationEntity: $relationEntity,
-    //       ),
-    //       '''
-    //     );
-    //     fieldNames.add(FieldInformation(name: f.name, field: f.name, defaultValue: [], isNullable: false, relationEntity: f.type));
-    //   }
-    // }
 
     buffer.writeln('''
           ),
@@ -153,9 +109,6 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         @override
         final Schema schema = generatedSchema;
       ''');
-    // // GeneratorHelper helper = GeneratorHelper(element as ClassElement);
-
-    // buffer.writeln('\n');
 
     buffer.writeln('''
         @override

@@ -26,6 +26,8 @@ abstract class Driver<T> {
 
   List<ColumnType> get supportedTypes;
 
+  Map<String, dynamic> get supportedDefaults;
+
   Future<void> connect();
 
   Future<void> afterConnect();
