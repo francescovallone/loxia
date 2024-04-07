@@ -37,3 +37,19 @@ class Or extends Operator {
 
   const Or(this.clauses) : super(clauses);
 }
+
+class GreaterThan extends Operator {
+  const GreaterThan(super.value);
+}
+
+class GreaterThanOrEqual extends Operator {
+  const GreaterThanOrEqual(super.value);
+}
+
+class LessThan extends Operator {
+  const LessThan(super.value);
+}
+
+class LessThanOrEqual extends Operator {
+  const LessThanOrEqual(super.value);
+}

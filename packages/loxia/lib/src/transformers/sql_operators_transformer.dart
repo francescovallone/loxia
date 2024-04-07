@@ -14,6 +14,14 @@ class SqlOperatorTransformer extends Transformer {
         ' = ${element.value is String ? '"${element.value}"' : element.value}',
       "NotEqual" =>
         ' != ${element.value is String ? '"${element.value}"' : element.value}',
+      "GreaterThan" =>
+        ' > ${element.value is String ? '"${element.value}"' : element.value}',
+      "GreaterThanOrEqual" =>
+        ' >= ${element.value is String ? '"${element.value}"' : element.value}',
+      "LessThan" =>
+        ' < ${element.value is String ? '"${element.value}"' : element.value}',
+      "LessThanOrEqual" =>
+        ' <= ${element.value is String ? '"${element.value}"' : element.value}',
       "And" => ' AND',
       "Or" => ' OR',
       _ => throw Exception('Invalid operator')

@@ -1,8 +1,5 @@
 import 'package:loxia/loxia.dart';
-import 'package:loxia/src/entity/entity.dart';
 import 'package:loxia/src/queries/count_options.dart';
-import 'package:loxia/src/queries/find_options.dart';
-import 'package:loxia/src/queries/where_clause.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
 
 final class EntityRepository<T> {

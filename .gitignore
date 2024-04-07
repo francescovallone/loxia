@@ -1,1 +1,4 @@
 pubspec_overrides.yaml
+**/.vitepress/dist
+**/.vitepress/cache
+**/node_modules/**

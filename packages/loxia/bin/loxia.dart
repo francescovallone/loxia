@@ -1,8 +1,4 @@
 import 'package:loxia/loxia.dart';
-import 'package:loxia/src/drivers/sqlite/sqlite_datasource_options.dart';
-import 'package:loxia/src/queries/find_options.dart';
-import 'package:loxia/src/queries/operators/operators.dart';
-import 'package:loxia/src/queries/where_clause.dart';
 
 import 'migration_test.dart';
 import 'todo_entity.dart';

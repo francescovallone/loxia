@@ -2,14 +2,11 @@ import 'dart:io';
 
 import 'package:loxia/loxia.dart';
 import 'package:loxia/src/connection.dart';
-import 'package:loxia/src/drivers/sqlite/sqlite_query_runner.dart';
-import 'package:loxia/src/enums/column_type_enum.dart';
 import 'package:loxia/src/query_runner/query_runner.dart';
 import 'package:loxia/src/transformers/sql_operators_transformer.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'sqlite_datasource_options.dart';
 
 class SqliteDriver extends Driver<Database> {
   SqliteDriver(super.dataSource);
@@ -109,7 +106,6 @@ class SqliteDriver extends Driver<Database> {
   }
   
   @override
-  // TODO: implement supportedDefaults
   Map<String, dynamic> get supportedDefaults => {
     'CURRENT_TIMESTAMP': '(strftime(\'%Y-%m-%dT%H:%M:%fZ\', \'now\'))',
   };
