@@ -50,8 +50,6 @@ class SqliteQueryRunner extends QueryRunner {
       }
       final type = getSqlType(column);
       final defaultValue = getDefaultValue(column);
-      print(column.name);
-      print("default: $defaultValue");
       return '''
         ${column.name} $type ${column.primaryKey ? 'PRIMARY KEY ' : ''}${column.autoIncrement ? 'AUTOINCREMENT ' : ''}${column.nullable ? '' : 'NOT NULL '}${column.unique ? 'UNIQUE ' : ''}$defaultValue
       '''
@@ -111,7 +109,6 @@ class SqliteQueryRunner extends QueryRunner {
       buffer.write('DEFAULT ');
       if(column.defaultValue is String) {
         final d = driver.supportedDefaults[column.defaultValue];
-        print(d);
         if(d != null) {
           buffer.write(d);
         } else {
