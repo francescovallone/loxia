@@ -18,3 +18,7 @@
 ## 0.0.1-dev.5
 
 - Change where in update and delete with the WhereClause class
+
+## 0.0.1-dev.6
+
+- Minor fixes
