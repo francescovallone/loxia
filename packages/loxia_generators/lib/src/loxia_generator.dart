@@ -5,6 +5,8 @@ import 'package:loxia_generators/src/helpers/values_helper.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_helper/source_helper.dart';
 
+import 'entity/information.dart';
+
 const _columnChecker = TypeChecker.fromRuntime(Column);
 
 const _relationChecker = TypeChecker.fromRuntime(Relation);
@@ -26,18 +28,11 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
       throw Exception(
           'The entity class must have at least one field annotated with @Column.');
     }
-    final schemaName = annotation.read('schema').literalValue as String?;
-    buffer.writeln('''
-        final generatedSchema = Schema(
-          ${schemaName != null ? 'name: \'$schemaName\',' : ''}
-          table: Table(
-            name: '${annotation.read('table').literalValue as String? ?? element.name.toLowerCase()}',
-      ''');
     final List<ColumnInformation> columns = [];
     final List<RelationInformation> relations = [];
     final columnHelper = ColumnHelper();
-    if (element.fields.any((element) => element.isFinal || element.isLate)) {
-      throw Exception('All fields must be mutable, non-static and non-late.');
+    if (element.fields.any((element) => element.isLate)) {
+      throw Exception('All fields must be non-late.');
     }
     for (var f in element.fields) {
       if (_columnChecker.hasAnnotationOf(f)) {
@@ -62,78 +57,9 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
             referenceType: f.type));
       }
     }
-    if (columns.isNotEmpty) {
-      buffer.writeln("columns: [");
-      for (var column in columns) {
-        buffer.writeln('''ColumnMetadata(
-            name: '${column.name}',
-            type: '${column.type}',
-            explicitType: ${column.explicitType},
-            nullable: ${column.nullable},
-            primaryKey: ${column.primaryKey},
-            unique: ${column.unique},
-            defaultValue: ${column.defaultValue},
-            ${column.autoIncrement ? 'autoIncrement: true,' : ''}
-            ${column.uuid ? 'uuid: true,' : ''}
-            ${column.length.isNotEmpty ? 'length: \'${column.length}\',' : ''}
-            ${column.width != null ? 'width: ${column.width},' : ''}
-            ${column.charset != null ? 'charset: \'${column.charset}\',' : ''}
-          ),''');
-      }
-      buffer.writeln("],");
-    }
-    if (relations.isNotEmpty) {
-      buffer.writeln("relations: [");
-      for (var relation in relations) {
-        buffer.writeln('''RelationMetadata(
-            column: '${relation.column}',
-            entity: ${relation.inverseEntity}Entity,
-            inverseEntity: ${relation.entity}Entity,
-            type: ${relation.type},
-          ),''');
-      }
-      buffer.writeln("],");
-    }
-
-    buffer.writeln('''
-          ),
-        );
-      ''');
-    buffer.writeln(''' class ${element.name}Entity extends GeneratedEntity {
-        
-        @override
-        Type get entityCls => ${element.name};
-
-      ''');
-    buffer.writeln('''
-        @override
-        final Schema schema = generatedSchema;
-      ''');
-
-    buffer.writeln('''
-        @override
-        ${element.name} from(Map<String, dynamic> map) {
-          return ${element.name}(
-            ${columns.where((element) => element.relationEntity == null).map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ${!e.nullable ? e.defaultValue ?? columnHelper.getFallbackValue(e.type) : null}').join(',\n')},\n
-            ${relations.map((e) => '${e.column}: map.containsKey(\'${e.column}\') && map[\'${e.column}\'] is ${e.referenceType!.isDartCoreIterable || e.referenceType!.isDartCoreList ? 'List<Map<String, dynamic>> ? map[\'${e.column}\'].map(${e.entity}.entity.from) : []' : 'Map<String, dynamic> ? ${e.inverseEntity}.entity.from(map[\'${e.column}\']) : null'}').join(',\n')}
-          ); 
-        }
-      ''');
-
-    buffer.writeln('\n');
-
-    buffer.writeln('''
-        @override
-        Map<String, dynamic> to(${element.name} entity) {
-          return {
-            ${columns.map((e) => '\'${e.name}\': entity.${e.field}').join(',\n')},\n
-            ${relations.map((e) => '\'${e.column}\': ${e.referenceType!.isDartCoreIterable || e.referenceType!.isDartCoreList ? 'entity.${e.column}.map(${e.inverseEntity}.entity.to).toList()' : 'entity.${e.column} != null ? ${e.inverseEntity}.entity.to(entity.${e.column}!) : null'}').join(',\n')}
-          }..removeWhere((key, value) => value == null);
-        }
-      ''');
-
-    buffer.writeln('\n');
-    buffer.writeln('}');
+    buffer.writeln(_generateSchema(element, annotation, columns, relations));
+    buffer.writeln(_generatePartialEntity(element));
+    buffer.writeln(_generateGeneratedEntity(element, columns, relations));
     return buffer.toString();
   }
 
@@ -171,57 +97,192 @@ class LoxiaGenerator extends GeneratorForAnnotation<EntityMeta> {
         defaultValue: defaultValue,
         unique: isUnique);
   }
-}
 
-class ColumnInformation {
-  final String name;
-  final String field;
-  final String type;
-  final dynamic defaultValue;
-  final String? explicitType;
-  final bool nullable;
-  final bool primaryKey;
-  final dynamic relationEntity;
-  final bool autoIncrement;
-  final bool uuid;
-  final bool unique;
-  final String length;
-  final int? width;
-  final String? charset;
+  String _generateSchema(
+      Element element, ConstantReader annotation, List<ColumnInformation> columns, List<RelationInformation> relations
+  ){
+    final buffer = StringBuffer();
+        final schemaName = annotation.read('schema').literalValue as String?;
+    buffer.writeln('''
+        final generatedSchema = Schema(
+          ${schemaName != null ? 'name: \'$schemaName\',' : ''}
+          table: Table(
+            name: '${annotation.read('table').literalValue as String? ?? element.name!.toLowerCase()}',
+      ''');
+    if (columns.isNotEmpty) {
+      buffer.writeln("columns: [");
+      for (var column in columns) {
+        buffer.writeln('''ColumnMetadata(
+            name: '${column.name}',
+            type: '${column.type}',
+            explicitType: ${column.explicitType},
+            nullable: ${column.nullable},
+            primaryKey: ${column.primaryKey},
+            unique: ${column.unique},
+            defaultValue: ${column.defaultValue},
+            ${column.autoIncrement ? 'autoIncrement: true,' : ''}
+            ${column.uuid ? 'uuid: true,' : ''}
+            ${column.length.isNotEmpty ? 'length: \'${column.length}\',' : ''}
+            ${column.width != null ? 'width: ${column.width},' : ''}
+            ${column.charset != null ? 'charset: \'${column.charset}\',' : ''}
+          ),''');
+      }
+      buffer.writeln("],");
+    }
+    if (relations.isNotEmpty) {
+      buffer.writeln("relations: [");
+      for (var relation in relations) {
+        buffer.writeln('''RelationMetadata(
+            column: '${relation.column}',
+            entity: ${relation.inverseEntity}Entity,
+            inverseEntity: ${relation.entity}Entity,
+            type: ${relation.type},
+          ),''');
+      }
+      buffer.writeln("],");
+    }
 
-  ColumnInformation({
-    required this.name,
-    required this.field,
-    required this.type,
-    this.explicitType,
-    this.defaultValue,
-    this.length = '',
-    this.width,
-    this.nullable = false,
-    this.unique = false,
-    this.primaryKey = false,
-    this.relationEntity,
-    this.autoIncrement = false,
-    this.uuid = false,
-    this.charset,
-  }) : assert(autoIncrement == false || uuid == false,
-            'autoIncrement and uuid cannot be true at the same time');
-}
+    buffer.writeln('''
+          ),
+        );
+      ''');
+    return buffer.toString();
+  }
 
-class RelationInformation {
-  final String entity;
-  final String inverseEntity;
-  final String column;
-  final String? referenceColumn;
-  final String type;
-  final dynamic referenceType;
+  String _generateGeneratedEntity(
+    Element element, List<ColumnInformation> columns, List<RelationInformation> relations
+  ) {
+    final columnHelper = ColumnHelper();
+    final buffer = StringBuffer();
+    buffer.writeln('''class ${element.name}Entity extends GeneratedEntity {
+        
+        @override
+        Type get entityCls => ${element.name};
 
-  RelationInformation({
-    required this.column,
-    this.entity = '',
-    this.inverseEntity = '',
-    this.referenceColumn,
-    this.type = 'none',
-    this.referenceType,
-  });
+      ''');
+    buffer.writeln('''
+        @override
+        final Schema schema = generatedSchema;
+
+        @override
+        final PartialEntity partialEntity = Partial${element.name}();
+      ''');
+
+    buffer.writeln('''
+        @override
+        ${element.name} from(Map<String, dynamic> map) {
+          return ${element.name}(
+            ${columns.where((element) => element.relationEntity == null).map((e) => '${e.field}: map.containsKey("${e.name}") ? map[\'${e.name}\'] : ${!e.nullable ? columnHelper.getValueOrDefault(e) ?? columnHelper.getFallbackValue(e.type) : null}').join(',\n')},\n
+            ${relations.map((e) => '${e.column}: map.containsKey(\'${e.column}\') && map[\'${e.column}\'] is ${e.referenceType!.isDartCoreIterable || e.referenceType!.isDartCoreList ? 'List<Map<String, dynamic>> ? map[\'${e.column}\'].map(${e.entity}.entity.from) : []' : 'Map<String, dynamic> ? ${e.inverseEntity}.entity.from(map[\'${e.column}\']) : null'}').join(',\n')}
+          ); 
+        }
+      ''');
+
+    buffer.writeln('\n');
+
+    buffer.writeln('''
+        @override
+        Map<String, dynamic> to(${element.name} entity) {
+          return {
+            ${columns.map((e) => '\'${e.name}\': entity.${e.field}').join(',\n')},\n
+            ${relations.map((e) => '\'${e.column}\': ${e.referenceType!.isDartCoreIterable || e.referenceType!.isDartCoreList ? 'entity.${e.column}.map(${e.inverseEntity}.entity.to).toList()' : 'entity.${e.column} != null ? ${e.inverseEntity}.entity.to(entity.${e.column}!) : null'}').join(',\n')}
+          }..removeWhere((key, value) => value == null);
+        }
+      ''');
+
+    buffer.writeln('\n');
+    buffer.writeln('}');
+    return buffer.toString();
+  }
+
+  String _generatePartialEntity(
+    ClassElement element
+  ){
+    final buffer = StringBuffer();
+
+    final fields = element.fields;
+    final constructor = element.constructors.where((element) => element.isGenerative).firstOrNull;
+    if(constructor == null) {
+      throw Exception('The ${element.name} entity class must have a generative constructor');
+    }
+    final nonStaticFields = fields.where((element) => !element.isStatic);
+    final requiredFields = nonStaticFields.where((element) => !element.type.isNullableType || element.isFinal).map((e) => e.name);
+    final positionalParameters = constructor.parameters.where((element) => element.isPositional).map((e) => e.name);
+    final requiredNamedParameters = constructor.parameters.where((element) => element.isRequiredNamed).map((e) => e.name);
+    final optionalNamedParameters = constructor.parameters.where((element) => element.isOptionalNamed);
+    final optionalPositionalParameters = constructor.parameters.where((element) => element.isOptionalPositional).map((e) => e.name);
+    final namedParameters = StringBuffer();
+    if(requiredNamedParameters.isNotEmpty){
+      namedParameters.write(requiredNamedParameters.map((e) => '$e: $e!').join(','));
+      namedParameters.write(',');
+    }
+    if(optionalNamedParameters.isNotEmpty){
+      namedParameters.write(optionalNamedParameters.map((e) => '${e.name}: ${e.name}${e.hasDefaultValue ? ' ?? ${e.defaultValueCode}' : ''}').join(','));
+    }
+    buffer.writeln(
+      '''class Partial${element.name} extends PartialEntity {
+
+        ${
+          nonStaticFields.map((e) => 
+            '${e.type.getDisplayString(withNullability: false)}? ${e.name};'
+          ).join('\n')
+        }
+
+        @override
+        bool isPartial() {
+          return ${requiredFields.map((e) => '$e == null').join(' || ')};
+        }
+
+        @override
+        Map<String, dynamic> to(Partial${element.name} entity) {
+          return {
+            ${nonStaticFields.map((e) => '\'${e.name}\': entity.${e.name}').join(',\n')}
+          };
+        }
+
+        @override
+        Partial${element.name} from(Map<String, dynamic> values) {
+          return Partial${element.name}(
+            ${nonStaticFields.map((e) => '${e.name}: values.containsKey(\'${e.name}\') ? values[\'${e.name}\'] : null').join(',\n')}
+          );
+        }
+
+        Partial${element.name}({
+          ${nonStaticFields.map((e) => 'this.${e.name},').join('\n')}
+        });
+
+        @override
+        ${element.name} toEntity() {
+          if(isPartial()) {
+            throw Exception('Cannot convert partial entity to entity');
+          }
+          return ${element.name}(
+            ${
+              positionalParameters.map((e) => 
+                'this.$e'
+              ).join(',\n')
+            }
+            ${positionalParameters.isNotEmpty ? ',' : ''}
+            ${
+              optionalPositionalParameters.isNotEmpty 
+              ? '[${optionalPositionalParameters.map((e) => 
+                  'this.$e'
+                ).join(',\n')}]'
+              : ''
+            }
+            ${optionalPositionalParameters.isNotEmpty ? ',' : ''}
+            ${
+              namedParameters.isNotEmpty 
+              ? '$namedParameters'
+              : ''
+            }
+          );
+        }
+
+      }
+      '''
+    );
+    return buffer.toString();
+  }
+
 }

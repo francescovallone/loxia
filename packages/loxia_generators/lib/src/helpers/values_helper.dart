@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:loxia_generators/src/entity/information.dart';
 
 class ColumnHelper {
   dynamic getDefaultValue(DartObject? defaultValue) {
@@ -26,6 +27,19 @@ class ColumnHelper {
       return defaultValue.toSetValue();
     }
     return defaultValue;
+  }
+
+  dynamic getValueOrDefault(ColumnInformation column) {
+    if(column.defaultValue != null){
+      print(column.defaultValue is String && column.defaultValue == "'CURRENT_TIMESTAMP'");
+      print(column.name);
+      print(column.defaultValue);
+      print(column.defaultValue is String);
+      if(column.defaultValue is String && column.defaultValue == "'CURRENT_TIMESTAMP'"){
+        return 'DateTime.now()';
+      }
+    }
+    return column.defaultValue;
   }
 
   dynamic getFallbackValue(String type) => switch(type) {

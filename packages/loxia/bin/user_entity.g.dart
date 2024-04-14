@@ -68,12 +68,80 @@ final generatedSchema = Schema(
   ),
 );
 
+class PartialUser extends PartialEntity {
+  int? id;
+  String? email;
+  String? password;
+  String? firstName;
+  String? lastName;
+  List<Todo>? todos;
+
+  @override
+  bool isPartial() {
+    return id == null ||
+        email == null ||
+        password == null ||
+        firstName == null ||
+        lastName == null ||
+        todos == null;
+  }
+
+  @override
+  Map<String, dynamic> to(PartialUser entity) {
+    return {
+      'id': entity.id,
+      'email': entity.email,
+      'password': entity.password,
+      'firstName': entity.firstName,
+      'lastName': entity.lastName,
+      'todos': entity.todos
+    };
+  }
+
+  @override
+  PartialUser from(Map<String, dynamic> values) {
+    return PartialUser(
+        id: values.containsKey('id') ? values['id'] : null,
+        email: values.containsKey('email') ? values['email'] : null,
+        password: values.containsKey('password') ? values['password'] : null,
+        firstName: values.containsKey('firstName') ? values['firstName'] : null,
+        lastName: values.containsKey('lastName') ? values['lastName'] : null,
+        todos: values.containsKey('todos') ? values['todos'] : null);
+  }
+
+  PartialUser({
+    this.id,
+    this.email,
+    this.password,
+    this.firstName,
+    this.lastName,
+    this.todos,
+  });
+
+  @override
+  User toEntity() {
+    if (isPartial()) {
+      throw Exception('Cannot convert partial entity to entity');
+    }
+    return User(
+        id: id!,
+        email: email!,
+        password: password!,
+        firstName: firstName!,
+        lastName: lastName!,
+        todos: todos ?? const []);
+  }
+}
+
 class UserEntity extends GeneratedEntity {
   @override
   Type get entityCls => User;
 
   @override
   final Schema schema = generatedSchema;
+
+  @override
+  final PartialEntity partialEntity = PartialUser();
 
   @override
   User from(Map<String, dynamic> map) {
